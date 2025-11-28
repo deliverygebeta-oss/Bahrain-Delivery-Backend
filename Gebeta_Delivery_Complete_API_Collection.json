@@ -1,0 +1,2265 @@
+{
+  "info": {
+    "name": "Gebeta Delivery API - Complete Collection",
+    "description": "Complete API collection for Gebeta Delivery backend hosted at https://gebeta-delivery1.onrender.com",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://gebeta-delivery1.onrender.com/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "restaurantId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "menuId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "foodId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"phoneNumber\": \"+251912345678\",\n  \"password\": \"password123\",\n  \"passwordConfirm\": \"password123\",\n  \"role\": \"Customer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "signup"]
+            },
+            "description": "Register a new user and receive OTP for verification"
+          }
+        },
+        {
+          "name": "Verify Signup OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"+251912345678\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/verifySignupOTP",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "verifySignupOTP"]
+            },
+            "description": "Complete signup by verifying OTP"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.token) {",
+                  "        pm.collectionVariables.set('token', jsonData.token);",
+                  "    }",
+                  "    if (jsonData.data && jsonData.data.user && jsonData.data.user._id) {",
+                  "        pm.collectionVariables.set('userId', jsonData.data.user._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"+251912345678\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "login"]
+            },
+            "description": "Login with phone number and password"
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"+251912345678\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/verifyOTP",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "verifyOTP"]
+            },
+            "description": "Verify OTP for various operations"
+          }
+        },
+        {
+          "name": "Request Password Reset OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"+251912345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/requestResetOTP",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "requestResetOTP"]
+            },
+            "description": "Request OTP for password reset"
+          }
+        },
+        {
+          "name": "Reset Password with OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"+251912345678\",\n  \"otp\": \"123456\",\n  \"password\": \"newPassword123\",\n  \"passwordConfirm\": \"newPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/resetPasswordOTP",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "resetPasswordOTP"]
+            },
+            "description": "Reset password using OTP"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "Get Me",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/getMe",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "getMe"]
+            },
+            "description": "Get current user profile"
+          }
+        },
+        {
+          "name": "Update My Password",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passwordCurrent\": \"password123\",\n  \"password\": \"newPassword123\",\n  \"passwordConfirm\": \"newPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/updateMyPassword",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "updateMyPassword"]
+            },
+            "description": "Update current user's password"
+          }
+        },
+        {
+          "name": "Update Me",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Name",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "newemail@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "profilePicture",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/updateMe",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "updateMe"]
+            },
+            "description": "Update current user profile (Customer only)"
+          }
+        },
+        {
+          "name": "Save Current Location",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 9.0320,\n  \"longitude\": 38.7469,\n  \"address\": \"Bole, Addis Ababa\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/saveLocation",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "saveLocation"]
+            },
+            "description": "Save current geolocation as address"
+          }
+        },
+        {
+          "name": "Get My Addresses",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/myAddresses",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "myAddresses"]
+            },
+            "description": "Get all addresses of current user"
+          }
+        },
+        {
+          "name": "Edit Address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 9.0500,\n  \"longitude\": 38.7600,\n  \"address\": \"Updated Address\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/address/:addressId",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "address", ":addressId"],
+              "variable": [
+                {
+                  "key": "addressId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Update specific address"
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/address/:addressId",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "address", ":addressId"],
+              "variable": [
+                {
+                  "key": "addressId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Delete specific address"
+          }
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Admin: Get all users"
+          }
+        },
+        {
+          "name": "Create User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "New User",
+                  "type": "text"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "+251911111111",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "password123",
+                  "type": "text"
+                },
+                {
+                  "key": "passwordConfirm",
+                  "value": "password123",
+                  "type": "text"
+                },
+                {
+                  "key": "role",
+                  "value": "Customer",
+                  "type": "text"
+                },
+                {
+                  "key": "profilePicture",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Admin: Create new user"
+          }
+        },
+        {
+          "name": "Get User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/getUser?phoneNumber=+251912345678",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "getUser"],
+              "query": [
+                {
+                  "key": "phoneNumber",
+                  "value": "+251912345678"
+                }
+              ]
+            },
+            "description": "Admin: Get specific user by phone"
+          }
+        },
+        {
+          "name": "Update User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Name",
+                  "type": "text"
+                },
+                {
+                  "key": "profilePicture",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{userId}}"
+                }
+              ]
+            },
+            "description": "Admin: Update user by ID"
+          }
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{userId}}"
+                }
+              ]
+            },
+            "description": "Admin: Delete user by ID"
+          }
+        },
+        {
+          "name": "Activate User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{userId}}"
+                }
+              ]
+            },
+            "description": "Admin: Activate/reactivate user by ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restaurants",
+      "item": [
+        {
+          "name": "Get All Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants"]
+            },
+            "description": "Get all restaurants"
+          }
+        },
+        {
+          "name": "Get Restaurants with Distance",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/distance-from-coords?latitude=9.0320&longitude=38.7469",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", "distance-from-coords"],
+              "query": [
+                {
+                  "key": "latitude",
+                  "value": "9.0320"
+                },
+                {
+                  "key": "longitude",
+                  "value": "38.7469"
+                }
+              ]
+            },
+            "description": "Get restaurants with distance from user coordinates"
+          }
+        },
+        {
+          "name": "Get Restaurants by Manager",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/by-manager",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", "by-manager"]
+            },
+            "description": "Manager/Admin: Get restaurants by manager ID"
+          }
+        },
+        {
+          "name": "Get Single Restaurant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.restaurant && jsonData.data.restaurant._id) {",
+                  "        pm.collectionVariables.set('restaurantId', jsonData.data.restaurant._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{restaurantId}}"
+                }
+              ]
+            },
+            "description": "Get specific restaurant by ID"
+          }
+        },
+        {
+          "name": "Get Restaurant with Menu",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/:id/menu",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", ":id", "menu"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{restaurantId}}"
+                }
+              ]
+            },
+            "description": "Get restaurant with full menu and categories"
+          }
+        },
+        {
+          "name": "Create Restaurant (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "New Restaurant",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Great food place",
+                  "type": "text"
+                },
+                {
+                  "key": "managerId",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "latitude",
+                  "value": "9.0320",
+                  "type": "text"
+                },
+                {
+                  "key": "longitude",
+                  "value": "38.7469",
+                  "type": "text"
+                },
+                {
+                  "key": "address",
+                  "value": "Bole, Addis Ababa",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurants",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants"]
+            },
+            "description": "Admin: Create new restaurant"
+          }
+        },
+        {
+          "name": "Update Restaurant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Restaurant Name",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated description",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{restaurantId}}"
+                }
+              ]
+            },
+            "description": "Manager/Admin: Update restaurant"
+          }
+        },
+        {
+          "name": "Delete Restaurant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{restaurantId}}"
+                }
+              ]
+            },
+            "description": "Manager/Admin: Delete restaurant"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Food Menus",
+      "item": [
+        {
+          "name": "Get All Menus",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/food-menus",
+              "host": ["{{baseUrl}}"],
+              "path": ["food-menus"]
+            },
+            "description": "Get all food menus"
+          }
+        },
+        {
+          "name": "Get Single Menu",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.menu && jsonData.data.menu._id) {",
+                  "        pm.collectionVariables.set('menuId', jsonData.data.menu._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/food-menus/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["food-menus", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{menuId}}"
+                }
+              ]
+            },
+            "description": "Get specific menu by ID"
+          }
+        },
+        {
+          "name": "Get Restaurant Menus",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/food-menus/restaurant/:restaurantId",
+              "host": ["{{baseUrl}}"],
+              "path": ["food-menus", "restaurant", ":restaurantId"],
+              "variable": [
+                {
+                  "key": "restaurantId",
+                  "value": "{{restaurantId}}"
+                }
+              ]
+            },
+            "description": "Get all menus for a specific restaurant"
+          }
+        },
+        {
+          "name": "Create Menu",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Breakfast Menu\",\n  \"description\": \"Morning delights\",\n  \"restaurantId\": \"{{restaurantId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/food-menus",
+              "host": ["{{baseUrl}}"],
+              "path": ["food-menus"]
+            },
+            "description": "Admin/Manager: Create new menu"
+          }
+        },
+        {
+          "name": "Update Menu",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Menu Name\",\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/food-menus/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["food-menus", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{menuId}}"
+                }
+              ]
+            },
+            "description": "Admin/Manager: Update menu"
+          }
+        },
+        {
+          "name": "Delete Menu",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/food-menus/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["food-menus", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{menuId}}"
+                }
+              ]
+            },
+            "description": "Admin/Manager: Delete menu"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Foods",
+      "item": [
+        {
+          "name": "Get All Foods",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/foods",
+              "host": ["{{baseUrl}}"],
+              "path": ["foods"]
+            },
+            "description": "Get all foods"
+          }
+        },
+        {
+          "name": "Get Foods by Menu",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/foods/by-menu/:menuId",
+              "host": ["{{baseUrl}}"],
+              "path": ["foods", "by-menu", ":menuId"],
+              "variable": [
+                {
+                  "key": "menuId",
+                  "value": "{{menuId}}"
+                }
+              ]
+            },
+            "description": "Get all foods in a specific menu"
+          }
+        },
+        {
+          "name": "Get Single Food",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.food && jsonData.data.food._id) {",
+                  "        pm.collectionVariables.set('foodId', jsonData.data.food._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/foods/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["foods", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{foodId}}"
+                }
+              ]
+            },
+            "description": "Get specific food by ID"
+          }
+        },
+        {
+          "name": "Create Food",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Tibs",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Ethiopian spiced meat",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "250",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "Main Course",
+                  "type": "text"
+                },
+                {
+                  "key": "menuId",
+                  "value": "{{menuId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "imageCover",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/foods",
+              "host": ["{{baseUrl}}"],
+              "path": ["foods"]
+            },
+            "description": "Admin/Manager: Create new food item"
+          }
+        },
+        {
+          "name": "Update Food",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Food Name",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "300",
+                  "type": "text"
+                },
+                {
+                  "key": "imageCover",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/foods/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["foods", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{foodId}}"
+                }
+              ]
+            },
+            "description": "Admin/Manager: Update food item"
+          }
+        },
+        {
+          "name": "Delete Food",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/foods/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["foods", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{foodId}}"
+                }
+              ]
+            },
+            "description": "Admin/Manager: Delete food item"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Estimate Delivery Fee",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"destinationLocation\": {\n    \"latitude\": 9.0500,\n    \"longitude\": 38.7600,\n    \"address\": \"Customer Address\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/estimate-delivery-fee",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "estimate-delivery-fee"]
+            },
+            "description": "Estimate delivery fee for an order"
+          }
+        },
+        {
+          "name": "Place Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.order && jsonData.data.order._id) {",
+                  "        pm.collectionVariables.set('orderId', jsonData.data.order._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"items\": [\n    {\n      \"foodId\": \"{{foodId}}\",\n      \"quantity\": 2\n    }\n  ],\n  \"destinationLocation\": {\n    \"latitude\": 9.0500,\n    \"longitude\": 38.7600,\n    \"address\": \"Customer Address\"\n  },\n  \"deliveryVehicle\": \"Motor\",\n  \"tip\": 10,\n  \"description\": \"Please deliver to the back door\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/place-order",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "place-order"]
+            },
+            "description": "Place a new order"
+          }
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/my-orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "my-orders"]
+            },
+            "description": "Get all orders for current user"
+          }
+        },
+        {
+          "name": "Get Orders by Phone",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/getOrdersByPhone?phoneNumber=+251912345678",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "getOrdersByPhone"],
+              "query": [
+                {
+                  "key": "phoneNumber",
+                  "value": "+251912345678"
+                }
+              ]
+            },
+            "description": "Get orders by phone number"
+          }
+        },
+        {
+          "name": "Get All Orders by Status (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/get-all-orders/:status",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "get-all-orders", ":status"],
+              "variable": [
+                {
+                  "key": "status",
+                  "value": "Pending",
+                  "description": "Pending, Preparing, Cooked, Delivering, Completed, Cancelled"
+                }
+              ]
+            },
+            "description": "Admin: Get all orders by status"
+          }
+        },
+        {
+          "name": "Get Orders by Restaurant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/restaurant/:restaurantId/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "restaurant", ":restaurantId", "orders"],
+              "variable": [
+                {
+                  "key": "restaurantId",
+                  "value": "{{restaurantId}}"
+                }
+              ]
+            },
+            "description": "Get all orders for a specific restaurant"
+          }
+        },
+        {
+          "name": "Get Cooked Orders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/cooked",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "cooked"]
+            },
+            "description": "Get all cooked orders"
+          }
+        },
+        {
+          "name": "Get Available Cooked Orders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/available-cooked",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "available-cooked"]
+            },
+            "description": "For delivery persons: Get available cooked orders"
+          }
+        },
+        {
+          "name": "Get Available Cooked Orders Count",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/available-cooked/count",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "available-cooked", "count"]
+            },
+            "description": "Get count of available cooked orders"
+          }
+        },
+        {
+          "name": "Get Orders by Delivery Man",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/get-orders-by-DeliveryMan",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "get-orders-by-DeliveryMan"]
+            },
+            "description": "Get orders assigned to current delivery person"
+          }
+        },
+        {
+          "name": "Get Delivery Order History",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/orderHistory",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "orderHistory"]
+            },
+            "description": "Get delivery history for current delivery person"
+          }
+        },
+        {
+          "name": "Accept Order for Delivery",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/accept-for-delivery",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "accept-for-delivery"]
+            },
+            "description": "Delivery person accepts an order for delivery"
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderStatus\": \"Preparing\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/:orderId/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", ":orderId", "status"],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}"
+                }
+              ]
+            },
+            "description": "Update order status (Preparing, Cooked, Delivering, etc.)"
+          }
+        },
+        {
+          "name": "Verify Restaurant Pickup",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"verificationCode\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/verify-restaurant-pickup",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "verify-restaurant-pickup"]
+            },
+            "description": "Delivery person verifies pickup from restaurant"
+          }
+        },
+        {
+          "name": "Verify Delivery",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"verificationCode\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/verify-delivery",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "verify-delivery"]
+            },
+            "description": "Verify delivery completion with customer code"
+          }
+        },
+        {
+          "name": "Chapa Payment Webhook",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/chapa-webhook",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "chapa-webhook"]
+            },
+            "description": "Chapa payment webhook endpoint"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deliveries",
+      "item": [
+        {
+          "name": "Get All Deliveries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/deliveries",
+              "host": ["{{baseUrl}}"],
+              "path": ["deliveries"]
+            },
+            "description": "Get all deliveries"
+          }
+        },
+        {
+          "name": "Get Single Delivery",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/deliveries/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["deliveries", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Get specific delivery by ID"
+          }
+        },
+        {
+          "name": "Assign Delivery to Order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"deliveryPersonId\": \"{{userId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/deliveries",
+              "host": ["{{baseUrl}}"],
+              "path": ["deliveries"]
+            },
+            "description": "Assign delivery person to an order"
+          }
+        },
+        {
+          "name": "Cancel Delivery Assignment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/deliveries/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["deliveries", "cancel"]
+            },
+            "description": "Cancel delivery assignment for an order"
+          }
+        },
+        {
+          "name": "Update Delivery",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Delivering\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/deliveries/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["deliveries", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Update delivery status"
+          }
+        },
+        {
+          "name": "Delete Delivery",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/deliveries/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["deliveries", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Delete delivery record"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews & Ratings",
+      "item": [
+        {
+          "name": "Get All Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/:restaurantId/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", ":restaurantId", "reviews"],
+              "variable": [
+                {
+                  "key": "restaurantId",
+                  "value": "{{restaurantId}}"
+                }
+              ]
+            },
+            "description": "Get all reviews for a restaurant"
+          }
+        },
+        {
+          "name": "Get Single Review",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/:restaurantId/reviews/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", ":restaurantId", "reviews", ":id"],
+              "variable": [
+                {
+                  "key": "restaurantId",
+                  "value": "{{restaurantId}}"
+                },
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Get specific review by ID"
+          }
+        },
+        {
+          "name": "Create Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"review\": \"Great food and excellent service!\",\n  \"rating\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/:restaurantId/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", ":restaurantId", "reviews"],
+              "variable": [
+                {
+                  "key": "restaurantId",
+                  "value": "{{restaurantId}}"
+                }
+              ]
+            },
+            "description": "Create a review for a restaurant"
+          }
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"review\": \"Updated review text\",\n  \"rating\": 4\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/:restaurantId/reviews/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", ":restaurantId", "reviews", ":id"],
+              "variable": [
+                {
+                  "key": "restaurantId",
+                  "value": "{{restaurantId}}"
+                },
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Update a review"
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/:restaurantId/reviews/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", ":restaurantId", "reviews", ":id"],
+              "variable": [
+                {
+                  "key": "restaurantId",
+                  "value": "{{restaurantId}}"
+                },
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Delete a review"
+          }
+        },
+        {
+          "name": "Create Rating",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"rating\": 5,\n  \"comment\": \"Excellent delivery service!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews"]
+            },
+            "description": "Create a rating for an order/delivery"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Get All Transactions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/transactions",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions"]
+            },
+            "description": "Get all transactions (Admin)"
+          }
+        },
+        {
+          "name": "Get Single Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/transactions/:transactionId",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions", ":transactionId"],
+              "variable": [
+                {
+                  "key": "transactionId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Get specific transaction by ID"
+          }
+        },
+        {
+          "name": "Create Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"amount\": 500,\n  \"paymentMethod\": \"Chapa\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transactions",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions"]
+            },
+            "description": "Create a new transaction"
+          }
+        },
+        {
+          "name": "Update Transaction Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transactions/:transactionId/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions", ":transactionId", "status"],
+              "variable": [
+                {
+                  "key": "transactionId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Update transaction status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Testing",
+      "item": [
+        {
+          "name": "API Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://gebeta-delivery1.onrender.com/",
+              "protocol": "https",
+              "host": ["gebeta-delivery1", "onrender", "com"],
+              "path": [""]
+            },
+            "description": "Check if API is running"
+          }
+        },
+        {
+          "name": "Test Socket",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/test/test-socket",
+              "host": ["{{baseUrl}}"],
+              "path": ["test", "test-socket"]
+            },
+            "description": "Test socket connection and events"
+          }
+        }
+      ]
+    }
+  ]
+}
+

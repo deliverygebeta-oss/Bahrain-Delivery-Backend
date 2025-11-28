@@ -1,0 +1,473 @@
+{
+	"info": {
+		"_postman_id": "balance-api-collection-001",
+		"name": "Balance API - Gebeta Delivery",
+		"description": "Complete Postman collection for Balance/Wallet management endpoints including balance checking, withdrawals, and transaction history.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{authToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Get Current Balance",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has balance data\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('status', 'success');",
+							"    pm.expect(jsonData.data).to.have.property('amount');",
+							"    pm.expect(jsonData.data).to.have.property('currency');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/balance",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"balance"
+					]
+				},
+				"description": "Retrieves the current total balance for the authenticated user (Delivery Person or Restaurant Manager)."
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/balance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"balance"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"success\",\n    \"message\": \"Total balance retrieved successfully.\",\n    \"data\": {\n        \"amount\": 5000.50,\n        \"currency\": \"ETB\"\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "Request Withdrawal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Withdrawal request created\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('status', 'success');",
+							"    pm.expect(jsonData.data).to.have.property('withdraw');",
+							"    pm.expect(jsonData.data).to.have.property('remainingBalance');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 1000,\n    \"note\": \"Withdrawal for delivery services completed this week\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/balance/withdraw",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"balance",
+						"withdraw"
+					]
+				},
+				"description": "Submit a withdrawal request. Available for Delivery Persons and Restaurant Managers. The withdrawal will be pending until admin approval."
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 1000,\n    \"note\": \"Withdrawal for delivery services\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/balance/withdraw",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"balance",
+								"withdraw"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"success\",\n    \"message\": \"Withdrawal request submitted successfully.\",\n    \"data\": {\n        \"withdraw\": {\n            \"_id\": \"65abc123def456789\",\n            \"requesterType\": \"Delivery\",\n            \"deliveryId\": \"65abc000def000000\",\n            \"amount\": 1000,\n            \"type\": \"Withdraw\",\n            \"note\": \"Withdrawal for delivery services\",\n            \"status\": \"PENDING\",\n            \"currency\": \"ETB\",\n            \"createdAt\": \"2025-01-18T10:30:00.000Z\"\n        },\n        \"remainingBalance\": 4000.50\n    }\n}"
+				},
+				{
+					"name": "Insufficient Balance",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 10000,\n    \"note\": \"Large withdrawal\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/balance/withdraw",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"balance",
+								"withdraw"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"fail\",\n    \"message\": \"Insufficient balance for withdrawal.\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get Transaction History",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response contains transaction history\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('status', 'success');",
+							"    pm.expect(jsonData).to.have.property('transactions');",
+							"    pm.expect(jsonData).to.have.property('totalBalance');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/balance/history",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"balance",
+						"history"
+					]
+				},
+				"description": "Retrieves the complete transaction history for the authenticated user with running balance calculations."
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/balance/history",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"balance",
+								"history"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"success\",\n    \"requesterType\": \"Delivery\",\n    \"totalBalance\": 5000.50,\n    \"transactions\": [\n        {\n            \"id\": \"65abc123def456789\",\n            \"type\": \"Deposit\",\n            \"amount\": 500,\n            \"currency\": \"ETB\",\n            \"status\": \"PAID\",\n            \"note\": \"Order #12345 delivery fee\",\n            \"createdAt\": \"2025-01-18T10:30:00.000Z\",\n            \"currentBalance\": 5000.50\n        },\n        {\n            \"id\": \"65abc123def456788\",\n            \"type\": \"Withdraw\",\n            \"amount\": 1000,\n            \"currency\": \"ETB\",\n            \"status\": \"PAID\",\n            \"note\": \"Weekly withdrawal\",\n            \"createdAt\": \"2025-01-17T15:20:00.000Z\",\n            \"currentBalance\": 4500.50\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "Get Withdraw History (Admin Only)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response contains withdraw history\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('status', 'success');",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData).to.have.property('results');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/balance/withdraw-history/:requesterType?type=Withdraw&status=PENDING",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"balance",
+						"withdraw-history",
+						":requesterType"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "Withdraw",
+							"description": "Transaction type: Deposit or Withdraw"
+						},
+						{
+							"key": "status",
+							"value": "PENDING",
+							"description": "Transaction status: PENDING, PAID, FAILED, etc."
+						}
+					],
+					"variable": [
+						{
+							"key": "requesterType",
+							"value": "Delivery",
+							"description": "Values: 'Delivery' or 'Restaurant'"
+						}
+					]
+				},
+				"description": "Admin-only endpoint to retrieve withdrawal history filtered by requester type (Delivery or Restaurant). Can filter by type and status using query parameters."
+			},
+			"response": [
+				{
+					"name": "Success - Delivery Withdrawals",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/balance/withdraw-history/Delivery?type=Withdraw&status=PENDING",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"balance",
+								"withdraw-history",
+								"Delivery"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "Withdraw"
+								},
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"success\",\n    \"results\": 2,\n    \"data\": [\n        {\n            \"_id\": \"65abc123def456789\",\n            \"requesterType\": \"Delivery\",\n            \"deliveryId\": {\n                \"_id\": \"65abc000def000001\",\n                \"firstName\": \"John\",\n                \"lastName\": \"Doe\",\n                \"phone\": \"+251911234567\",\n                \"profilePicture\": \"https://example.com/profile.jpg\",\n                \"role\": \"Delivery_Person\"\n            },\n            \"restaurantId\": null,\n            \"amount\": 1000,\n            \"currency\": \"ETB\",\n            \"type\": \"Withdraw\",\n            \"note\": \"Weekly withdrawal request\",\n            \"status\": \"PENDING\",\n            \"fee\": 0,\n            \"createdAt\": \"2025-01-18T10:30:00.000Z\"\n        },\n        {\n            \"_id\": \"65abc123def456788\",\n            \"requesterType\": \"Delivery\",\n            \"deliveryId\": {\n                \"_id\": \"65abc000def000002\",\n                \"firstName\": \"Jane\",\n                \"lastName\": \"Smith\",\n                \"phone\": \"+251911234568\",\n                \"profilePicture\": \"https://example.com/profile2.jpg\",\n                \"role\": \"Delivery_Person\"\n            },\n            \"restaurantId\": null,\n            \"amount\": 1500,\n            \"currency\": \"ETB\",\n            \"type\": \"Withdraw\",\n            \"note\": \"Monthly withdrawal\",\n            \"status\": \"PENDING\",\n            \"fee\": 0,\n            \"createdAt\": \"2025-01-17T15:20:00.000Z\"\n        }\n    ]\n}"
+				},
+				{
+					"name": "Success - Restaurant Withdrawals",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/balance/withdraw-history/Restaurant?type=Withdraw&status=PENDING",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"balance",
+								"withdraw-history",
+								"Restaurant"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "Withdraw"
+								},
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"success\",\n    \"results\": 1,\n    \"data\": [\n        {\n            \"_id\": \"65abc123def456790\",\n            \"requesterType\": \"Restaurant\",\n            \"deliveryId\": null,\n            \"restaurantId\": {\n                \"_id\": \"65abc000def000003\",\n                \"name\": \"Yod Abyssinia\",\n                \"phone\": \"+251911234569\",\n                \"profilePicture\": \"https://example.com/restaurant.jpg\"\n            },\n            \"amount\": 5000,\n            \"currency\": \"ETB\",\n            \"type\": \"Withdraw\",\n            \"note\": \"Monthly earnings withdrawal\",\n            \"status\": \"PENDING\",\n            \"fee\": 0,\n            \"createdAt\": \"2025-01-18T11:00:00.000Z\"\n        }\n    ]\n}"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "your-jwt-token-here",
+			"type": "string"
+		}
+	]
+}
+

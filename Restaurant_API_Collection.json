@@ -1,0 +1,1161 @@
+{
+  "info": {
+    "name": "Gebeta Delivery - Restaurant & Menu API",
+    "description": "Comprehensive API collection for testing restaurant and food menu endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://gebeta-delivery1.onrender.com",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "JWT token obtained from login - set this after logging in"
+    },
+    {
+      "key": "restaurantId",
+      "value": "",
+      "type": "string",
+      "description": "Restaurant ID - set this after creating a restaurant"
+    },
+    {
+      "key": "menuId",
+      "value": "",
+      "type": "string",
+      "description": "Menu ID - set this after creating a menu or getting a menu"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Public Endpoints",
+      "item": [
+        {
+          "name": "Get All Restaurants",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has restaurants array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants"]
+            },
+            "description": "Get all active restaurants that are currently open"
+          }
+        },
+        {
+          "name": "Get Restaurant by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains restaurant data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('restaurant');",
+                  "    pm.expect(jsonData.data.restaurant).to.have.property('_id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "restaurant_id_here",
+                  "description": "Restaurant ID"
+                }
+              ]
+            },
+            "description": "Get a single restaurant by ID with all details"
+          }
+        },
+        {
+          "name": "Get Restaurant with Menu (Protected)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains foods array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('foods');",
+                  "    pm.expect(jsonData.data.foods).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "JWT token required"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/:id/menu",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":id", "menu"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "restaurant_id_here",
+                  "description": "Restaurant ID"
+                }
+              ]
+            },
+            "description": "Get restaurant details with its complete menu (requires authentication)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Distance-based Queries",
+      "item": [
+        {
+          "name": "Get Restaurants with Distance",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has restaurants with distance\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    if (jsonData.data.length > 0) {",
+                  "        pm.expect(jsonData.data[0]).to.have.property('distanceMeters');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "JWT token required"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/distance-from-coords?lat=9.0192&lng=38.7525&radius=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "distance-from-coords"],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "9.0192",
+                  "description": "Latitude"
+                },
+                {
+                  "key": "lng",
+                  "value": "38.7525",
+                  "description": "Longitude"
+                },
+                {
+                  "key": "radius",
+                  "value": "10",
+                  "description": "Radius in kilometers"
+                }
+              ]
+            },
+            "description": "Get restaurants within specified radius from coordinates (Addis Ababa coordinates used as example)"
+          }
+        },
+        {
+          "name": "Get Restaurants with Distance - Different Location",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/distance-from-coords?lat=8.9806&lng=38.7578&radius=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "distance-from-coords"],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "8.9806"
+                },
+                {
+                  "key": "lng",
+                  "value": "38.7578"
+                },
+                {
+                  "key": "radius",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Admin Endpoints",
+      "item": [
+        {
+          "name": "Create Restaurant",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Make sure to set a valid manager phone number",
+                  "console.log('Creating restaurant with manager phone');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains restaurant data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('restaurant');",
+                  "    pm.expect(jsonData.data.restaurant).to.have.property('id');",
+                  "});",
+                  "",
+                  "// Save restaurant ID for future use",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.restaurant) {",
+                  "        pm.environment.set('restaurantId', jsonData.data.restaurant.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Admin token required"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Test Restaurant",
+                  "type": "text",
+                  "description": "Restaurant name"
+                },
+                {
+                  "key": "license",
+                  "value": "LIC123456",
+                  "type": "text",
+                  "description": "Business license number"
+                },
+                {
+                  "key": "managerPhone",
+                  "value": "+251912345678",
+                  "type": "text",
+                  "description": "Manager's phone number (must be registered as Manager role)"
+                },
+                {
+                  "key": "isDeliveryAvailable",
+                  "value": "true",
+                  "type": "text",
+                  "description": "Whether delivery is available"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": [],
+                  "description": "Restaurant image"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants"]
+            },
+            "description": "Create a new restaurant (Admin only). The managerPhone must be a user with Manager role already registered."
+          }
+        },
+        {
+          "name": "Update Restaurant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains updated restaurant\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('restaurant');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "description",
+                  "value": "Updated description for the restaurant",
+                  "type": "text"
+                },
+                {
+                  "key": "cuisineTypes",
+                  "value": "[\"Ethiopian\", \"Traditional\"]",
+                  "type": "text",
+                  "description": "JSON array of cuisine types"
+                },
+                {
+                  "key": "isDeliveryAvailable",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": [],
+                  "description": "New restaurant image (optional)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{restaurantId}}",
+                  "description": "Restaurant ID"
+                }
+              ]
+            },
+            "description": "Update restaurant details (Manager or Admin only)"
+          }
+        },
+        {
+          "name": "Delete Restaurant (Soft Delete)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{restaurantId}}"
+                }
+              ]
+            },
+            "description": "Soft delete a restaurant by setting active=false (Manager or Admin only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Manager-Specific Endpoints",
+      "item": [
+        {
+          "name": "Get Restaurants by Manager",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains restaurants array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('restaurants');",
+                  "    pm.expect(jsonData.data.restaurants).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Manager or Admin token"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/by-manager?includeReviews=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "by-manager"],
+              "query": [
+                {
+                  "key": "includeReviews",
+                  "value": "false",
+                  "description": "Set to true to include reviews"
+                }
+              ]
+            },
+            "description": "Get all restaurants managed by the current authenticated manager"
+          }
+        },
+        {
+          "name": "Get Restaurants by Manager (with Reviews)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/by-manager?includeReviews=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "by-manager"],
+              "query": [
+                {
+                  "key": "includeReviews",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Get manager's restaurants with reviews included"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Additional Test Cases",
+      "item": [
+        {
+          "name": "Get All Restaurants - Filter by Cuisine",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants"]
+            },
+            "description": "Note: Filtering by cuisine should be done client-side after fetching"
+          }
+        },
+        {
+          "name": "Test Invalid Restaurant ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Error message indicates not found\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('No restaurant found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/000000000000000000000000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "000000000000000000000000"]
+            },
+            "description": "Test with invalid MongoDB ObjectID"
+          }
+        },
+        {
+          "name": "Create Restaurant - Missing Required Fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Test Restaurant",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants"]
+            },
+            "description": "Test validation by sending incomplete data"
+          }
+        },
+        {
+          "name": "Create Restaurant - Invalid Manager",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Test Restaurant",
+                  "type": "text"
+                },
+                {
+                  "key": "license",
+                  "value": "LIC123456",
+                  "type": "text"
+                },
+                {
+                  "key": "managerPhone",
+                  "value": "+251999999999",
+                  "type": "text",
+                  "description": "Phone that doesn't exist or isn't a Manager"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants"]
+            },
+            "description": "Test with phone number that isn't registered as Manager"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Food Menu Endpoints",
+      "item": [
+        {
+          "name": "Get All Menus",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has menus array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/food-menus",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "food-menus"]
+            },
+            "description": "Get all active food menus with optional filtering, sorting, and pagination"
+          }
+        },
+        {
+          "name": "Get All Menus - With Pagination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/food-menus?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "food-menus"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                }
+              ]
+            },
+            "description": "Get menus with pagination"
+          }
+        },
+        {
+          "name": "Get All Menus - Filter by Restaurant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/food-menus?restaurantId={{restaurantId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "food-menus"],
+              "query": [
+                {
+                  "key": "restaurantId",
+                  "value": "{{restaurantId}}",
+                  "description": "Restaurant ID to filter menus"
+                }
+              ]
+            },
+            "description": "Get menus filtered by restaurant ID"
+          }
+        },
+        {
+          "name": "Get Single Menu",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains menu and foods\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('menu');",
+                  "    pm.expect(jsonData.data).to.have.property('foods');",
+                  "    pm.expect(jsonData.data.foods).to.be.an('array');",
+                  "});",
+                  "",
+                  "// Save menu ID for future use",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.menu) {",
+                  "        pm.environment.set('menuId', jsonData.data.menu._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/food-menus/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "food-menus", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{menuId}}",
+                  "description": "Menu ID"
+                }
+              ]
+            },
+            "description": "Get a single menu with all its foods"
+          }
+        },
+        {
+          "name": "Get Menus by Restaurant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains menus array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/food-menus/restaurant/:restaurantId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "food-menus", "restaurant", ":restaurantId"],
+              "variable": [
+                {
+                  "key": "restaurantId",
+                  "value": "{{restaurantId}}",
+                  "description": "Restaurant ID"
+                }
+              ]
+            },
+            "description": "Get all active menus for a specific restaurant"
+          }
+        },
+        {
+          "name": "Create Menu (Manager/Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains menu data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('restaurantId');",
+                  "});",
+                  "",
+                  "// Save menu ID for future use",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.environment.set('menuId', jsonData.data._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Manager or Admin token required"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"menuType\": \"breakfast\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/food-menus",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "food-menus"]
+            },
+            "description": "Create a new menu for a restaurant (Manager or Admin only). menuType examples: breakfast, lunch, dinner, snack, beverage, other"
+          }
+        },
+        {
+          "name": "Create Menu - Different Type",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"menuType\": \"lunch\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/food-menus",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "food-menus"]
+            },
+            "description": "Create a lunch menu"
+          }
+        },
+        {
+          "name": "Update Menu",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains updated menu\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('menuType');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"menuType\": \"brunch\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/food-menus/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "food-menus", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{menuId}}",
+                  "description": "Menu ID"
+                }
+              ]
+            },
+            "description": "Update menu details (Manager or Admin only)"
+          }
+        },
+        {
+          "name": "Delete Menu (Soft Delete)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/food-menus/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "food-menus", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{menuId}}",
+                  "description": "Menu ID"
+                }
+              ]
+            },
+            "description": "Soft delete a menu by setting active=false (Manager or Admin only)"
+          }
+        },
+        {
+          "name": "Create Menu - Duplicate Type Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"menuType\": \"breakfast\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/food-menus",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "food-menus"]
+            },
+            "description": "Test attempting to create duplicate menu type (should fail with 400)"
+          }
+        },
+        {
+          "name": "Get Invalid Menu ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/food-menus/000000000000000000000000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "food-menus", "000000000000000000000000"]
+            },
+            "description": "Test with invalid MongoDB ObjectID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Authentication Setup",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Save token for future requests",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.token) {",
+                  "        pm.environment.set('token', jsonData.data.token);",
+                  "        console.log('Token saved successfully');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+251912345678\",\n  \"password\": \"admin_password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "login"]
+            },
+            "description": "Login as Admin to get authentication token"
+          }
+        },
+        {
+          "name": "Login as Manager",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.token) {",
+                  "        pm.environment.set('token', jsonData.data.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+251912345678\",\n  \"password\": \"manager_password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "login"]
+            },
+            "description": "Login as Manager to get authentication token"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+

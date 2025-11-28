@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "472b78fe-2939-4164-9448-b005ff8af64c"
+      }
+    },
+    "android": {
+      "package": "come.gebetatech"
+    }
+  }
+}
