@@ -4,7 +4,16 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "pm2 start server.js --name gebeta-backend"
+    "start": "node server.js",
+    "start:prod": "cross-env NODE_ENV=production node server.js",
+    "pm2:start": "pm2 start ecosystem.config.cjs --env production",
+    "pm2:stop": "pm2 stop ecosystem.config.cjs",
+    "pm2:restart": "pm2 restart ecosystem.config.cjs --env production",
+    "pm2:delete": "pm2 delete ecosystem.config.cjs",
+    "pm2:logs": "pm2 logs gebeta-backend",
+    "pm2:monit": "pm2 monit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [],
   "author": "",
@@ -50,6 +59,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
+    "cross-env": "^10.1.0",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.5",
