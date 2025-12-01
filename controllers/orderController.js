@@ -27,6 +27,8 @@ export const initializeChapaPayment = async ({ amount, currency, orderId, user }
     }
     // Generate unique transaction reference
     const txRef = `CHAPA-${orderId}-${Date.now()}`;
+    
+    const callbackUrl = `${process.env.SERVER_URL}/api/v1/orders/chapa-webhook`;
 
     // Initialize payment request
     const chapaResponse = await axios.post(
@@ -38,7 +40,7 @@ export const initializeChapaPayment = async ({ amount, currency, orderId, user }
       
         phone_number: user.phone,
         tx_ref: txRef,
-        callback_url: "https://gebeta-delivery1.onrender.com/api/v1/orders/chapa-webhook",
+        callback_url: callbackUrl,
         customization: {
           title: "Gebeta Pay", // ✅ only 10 chars
           description: `Order ${txRef}`, // ✅ ~20–30 chars max
