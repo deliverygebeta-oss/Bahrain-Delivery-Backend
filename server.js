@@ -1,54 +1,128 @@
 // server.js
+import fs from 'fs';
+import http from 'http';
+import https from 'https';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import http from 'http';
 import app from './app.js';
-import { initializeSocket } from './socketServer.js'; // We'll create this
+import { initializeSocket } from './socketServer.js';
+import winston from 'winston';
 
 dotenv.config({ path: './.env' });
 
-const DB = process.env.DATABASE;
-const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET;
+// --- simple winston logger (customize transports in production) ---
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(({ timestamp, level, message, ...meta }) =>
+      `${timestamp} ${level}: ${message} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`
+    )
+  ),
+  transports: [
+    new winston.transports.Console(),
+    // in production you can add file transports or other transports (e.g. CloudWatch)
+    // new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+  ],
+});
 
+// --- Validate critical env vars early ---
+const { DATABASE: DB, JWT_SECRET, NODE_ENV = 'development', PORT = 3000 } = process.env;
 if (!DB) {
-  console.error('DATABASE environment variable is not defined!');
+  logger.error('DATABASE environment variable is not defined!');
   process.exit(1);
 }
-
 if (!JWT_SECRET) {
-  console.error('JWT_SECRET environment variable is not defined!');
+  logger.error('JWT_SECRET environment variable is not defined!');
   process.exit(1);
 }
 
+// If behind a reverse proxy (NGINX, load balancer) enable trust proxy for secure cookies & rate limiter
+if (NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+// --- Mongoose connection with recommended options ---
 mongoose
-  .connect(DB)
-  .then(() => console.log('DB connection successful!'))
+  .connect(DB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    // other options as needed
+  })
+  .then(() => logger.info('DB connection successful!'))
   .catch((err) => {
-    console.error('DB connection error:', err.message);
+    logger.error('DB connection error:', err.message || err);
     process.exit(1);
   });
 
-// Create HTTP Server
-const httpServer = http.createServer(app);
+// --- Create HTTP or HTTPS server depending on env ---
+// Provide full absolute paths to cert/key or use environment strings if you manage them that way.
+let server;
+try {
+  const { SSL_KEY_PATH, SSL_CERT_PATH } = process.env;
+  if (SSL_KEY_PATH && SSL_CERT_PATH && fs.existsSync(SSL_KEY_PATH) && fs.existsSync(SSL_CERT_PATH)) {
+    logger.info('Starting HTTPS server');
+    const key = fs.readFileSync(SSL_KEY_PATH, 'utf8');
+    const cert = fs.readFileSync(SSL_CERT_PATH, 'utf8');
+    const httpsOptions = { key, cert };
+    server = https.createServer(httpsOptions, app);
+  } else {
+    logger.info('Starting HTTP server');
+    server = http.createServer(app);
+  }
+} catch (err) {
+  logger.error('Error creating server:', err);
+  process.exit(1);
+}
 
-// Initialize Socket.IO (attached to httpServer)
-initializeSocket(httpServer);
+// Initialize Socket.IO (attach to server)
+initializeSocket(server);
 
-httpServer.listen(PORT, () => {
-  console.log(`App running on port ${PORT}...`);
+// start listening
+server.listen(PORT, () => {
+  logger.info(`App running on port ${PORT} (env=${NODE_ENV})...`);
 });
 
-// Graceful shutdown
+// --- Graceful shutdown helpers ---
+const shutdown = (signal, exitCode = 0) => {
+  return async (err) => {
+    if (err) logger.error(`${signal} triggered shutdown:`, err);
+    else logger.info(`${signal} triggered shutdown`);
+
+    // stop accepting new connections
+    try {
+      server.close(() => {
+        logger.info('HTTP server closed');
+      });
+
+      // close mongoose connection
+      await mongoose.connection.close(false);
+      logger.info('MongoDB connection closed');
+
+      // allow a short grace period for sockets to finish
+      setTimeout(() => {
+        logger.info('Exiting process');
+        process.exit(exitCode);
+      }, 1000).unref();
+    } catch (closeErr) {
+      logger.error('Error during shutdown', closeErr);
+      process.exit(1);
+    }
+  };
+};
+
+// handle signals
+process.on('SIGTERM', shutdown('SIGTERM', 0));
+process.on('SIGINT', shutdown('SIGINT', 0));
+
+// handle uncaught exceptions and unhandled promise rejections
 process.on('uncaughtException', (err) => {
-  console.error('UNCAUGHT EXCEPTION! Shutting down...');
-  console.error('Error:', err);
-  console.error(err.name, err.message);
-  process.exit(1);
+  logger.error('UNCAUGHT EXCEPTION! Shutting down...', err);
+  // give logger a moment to flush
+  shutdown('uncaughtException', 1)(err);
 });
 
 process.on('unhandledRejection', (err) => {
-  console.error('UNHANDLED REJECTION! Shutting down...');
-  console.error(err.name, err.message);
-  httpServer.close(() => process.exit(1));
+  logger.error('UNHANDLED REJECTION! Shutting down...', err);
+  shutdown('unhandledRejection', 1)(err);
 });
