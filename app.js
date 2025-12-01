@@ -122,10 +122,23 @@ app.use('/api/v1/reviews', ratingRoutes);
 app.use('/api/v1/restaurants/:restaurantId/reviews', reviewRouter);
 
 // -----------------------
-// TEST ROUTE
+// HEALTH CHECK & TEST ROUTES
 // -----------------------
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'API is working 🚀' });
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    memory: {
+      used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB',
+      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + 'MB'
+    }
+  });
 });
 
 // -----------------------

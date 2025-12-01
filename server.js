@@ -45,9 +45,8 @@ if (NODE_ENV === 'production') {
 // --- Mongoose connection with recommended options ---
 mongoose
   .connect(DB, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    // other options as needed
+    // useNewUrlParser and useUnifiedTopology are deprecated in MongoDB driver 4.0+
+    // MongoDB driver now handles these automatically
   })
   .then(() => logger.info('DB connection successful!'))
   .catch((err) => {

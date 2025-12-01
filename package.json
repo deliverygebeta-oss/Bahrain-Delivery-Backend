@@ -3,10 +3,19 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon start server.js --name gebeta-backend",
-    "start": "nodemon server.js --name gebeta-backend"
-  },
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "start:prod": "NODE_ENV=production node server.js",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop ecosystem.config.js",
+    "pm2:restart": "pm2 restart ecosystem.config.js",
+    "pm2:delete": "pm2 delete ecosystem.config.js",
+    "pm2:logs": "pm2 logs gebeta-backend",
+    "pm2:monit": "pm2 monit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  }
+,
   "keywords": [],
   "author": "",
   "license": "ISC",
