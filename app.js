@@ -2,6 +2,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import cors from 'cors';
 
 // SECURITY PACKAGES
@@ -70,15 +71,24 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
 // -----------------------
-// SESSION SECURITY
+// SESSION SECURITY (Production-ready with MongoDB)
 // -----------------------
 app.use(session({
   secret: process.env.SESSION_SECRET || 'change-this-in-production!',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.DATABASE,
+    touchAfter: 24 * 3600, // lazy session update (seconds)
+    crypto: {
+      secret: process.env.SESSION_SECRET || 'change-this-in-production!'
+    },
+    collectionName: 'sessions',
+    ttl: 10 * 60, // 10 minutes (in seconds)
+  }),
   cookie: {
     httpOnly: true,
-    maxAge: 10 * 60 * 1000, // 10 minutes
+    maxAge: 10 * 60 * 1000, // 10 minutes (in milliseconds)
     secure: isProd,         // only over HTTPS
     sameSite: isProd ? 'none' : 'lax'
   }
@@ -134,6 +144,7 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
+    sessionStore: 'MongoDB',
     memory: {
       used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB',
       total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + 'MB'

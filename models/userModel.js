@@ -191,10 +191,10 @@ const userSchema = new mongoose.Schema(
 // =======================
 // Indexes
 // =======================
-userSchema.index({ phone: 1 });
+// userSchema.index({ phone: 1 }); // REMOVED: phone already has unique index (line 74)
 userSchema.index({ role: 1 });
 userSchema.index({ active: 1 });
-userSchema.index({ phone: 1, role: 1 });
+userSchema.index({ phone: 1, role: 1 }); // Compound index is fine
 
 // =======================
 // Hooks

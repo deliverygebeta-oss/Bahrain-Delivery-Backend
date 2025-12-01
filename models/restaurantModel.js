@@ -140,7 +140,7 @@ restaurantSchema.index(
 /**
  * Optimize queries by manager
  */
-restaurantSchema.index({ managerId: 1 });
+// restaurantSchema.index({ managerId: 1 }); // REMOVED: managerId already has unique index (line 77)
 
 // Middleware
 /**
