@@ -59,6 +59,7 @@ export const sendChapaTransfer = async ({ accountName, accountNumber, amount, ba
     headers: {
       Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
       "Content-Type": "application/json",
+      "Chapa-Signature": process.env.CHAPA_SIGNATURE,
     },
   });
 
