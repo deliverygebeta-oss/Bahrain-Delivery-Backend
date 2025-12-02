@@ -363,9 +363,9 @@ export const getWithdrawHistory = async (req, res) => {
 export const chapaTransferApproval = async (req, res) => {
   try {
     const approvalSecret = process.env.CHAPA_APPROVAL_SECRET;
-
+    console.log(approvalSecret);
     const receivedSignature = req.headers["chapa-signature"];
-
+console.log(receivedSignature);
     // Generate correct signature based on docs
     const generatedSignature = crypto
       .createHmac("sha256", approvalSecret)
