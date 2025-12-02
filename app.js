@@ -3,6 +3,7 @@ import express from 'express';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import cors from 'cors';
+import morgan from 'morgan';
 
 // SECURITY PACKAGES
 import helmet from 'helmet';
@@ -52,6 +53,19 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
+// -----------------------
+// API REQUEST LOGGING (Simple & Clean)
+// -----------------------
+morgan.token('emoji', (req, res) => {
+  const status = res.statusCode;
+  if (status >= 500) return '❌';
+  if (status >= 400) return '⚠️';
+  if (status >= 300) return '↪️';
+  return '✅';
+});
+
+app.use(morgan(':emoji :method :url :status - :response-time ms'));
 
 // -----------------------
 // BODY PARSER

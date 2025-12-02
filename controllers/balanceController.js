@@ -134,7 +134,7 @@ export const requestWithdraw = async (req, res, next) => {
   try {
     const user = req.user;
     const { amount, bankId, note } = req.body;
-
+console.log("sdfadsfs")
     if (!user?._id) {
       return res.status(401).json({ status: "fail", message: "User not authenticated." });
     }

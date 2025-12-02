@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "npx nodemon server.js",
     "start": "node server.js",
     "start:prod": "cross-env NODE_ENV=production node server.js",
     "pm2:start": "pm2 start ecosystem.config.cjs --env production",
