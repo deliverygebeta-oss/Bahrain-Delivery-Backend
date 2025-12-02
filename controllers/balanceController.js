@@ -48,7 +48,7 @@ export const getBalance = async (req, res, next) => {
 export const sendChapaTransfer = async ({ accountName, accountNumber, amount, bankCode }) => {
   const payload = {
     account_name: accountName,
-    account_number: accountNumber,
+    account_number: "0937609277",
     amount: amount.toString(),
     currency: "ETB",
     reference: "REF-" + Date.now(),
@@ -62,6 +62,8 @@ export const sendChapaTransfer = async ({ accountName, accountNumber, amount, ba
       "Chapa-Signature": process.env.CHAPA_SIGNATURE,
     },
   });
+
+  
 
   return response.data;
 };
