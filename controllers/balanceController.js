@@ -176,7 +176,15 @@ export const requestWithdraw = async (req, res, next) => {
     /***********************
      * Auto-filled values
      ***********************/
-    const accountNumber = user.phone;
+    // Remove country code (+251) and ensure leading '09...' for the account number
+    let accountNumber = user.phone;
+    if (accountNumber.startsWith('+251')) {
+      accountNumber = accountNumber.replace('+251', '');
+      if (accountNumber.length === 9 && accountNumber.startsWith('9')) {
+        accountNumber = '0' + accountNumber;
+      }
+    }
+    
     const accountName = `${user.firstName} ${user.lastName}`;
 
     /***********************
@@ -214,7 +222,7 @@ export const requestWithdraw = async (req, res, next) => {
       return res.status(500).json({
         status: "fail",
         message: "Chapa payout failed.",
-        error: error.message,
+        error: error,
       });
     }
 
