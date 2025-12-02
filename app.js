@@ -56,16 +56,16 @@ app.use(cors({
 
 // -----------------------
 // API REQUEST LOGGING (Simple & Clean)
-// -----------------------
-morgan.token('emoji', (req, res) => {
-  const status = res.statusCode;
-  if (status >= 500) return '❌';
-  if (status >= 400) return '⚠️';
-  if (status >= 300) return '↪️';
-  return '✅';
-});
+// // -----------------------
+// morgan.token('emoji', (req, res) => {
+//   const status = res.statusCode;
+//   if (status >= 500) return '❌';
+//   if (status >= 400) return '⚠️';
+//   if (status >= 300) return '↪️';
+//   return '✅';
+// });
 
-app.use(morgan(':emoji :method :url :status - :response-time ms'));
+// app.use(morgan(':emoji :method :url :status - :response-time ms'));
 
 // -----------------------
 // BODY PARSER
