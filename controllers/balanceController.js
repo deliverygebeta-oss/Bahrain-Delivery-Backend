@@ -2,7 +2,7 @@ import Balance, { REQUESTER_TYPES, TRANSACTION_TYPES } from "../models/Balance.j
 import Restaurant from "../models/restaurantModel.js";
 import { TRANSACTION_STATUSES } from "../models/Transaction.js";
 import axios from "axios";
-
+import crypto from "crypto";
 /************************************************************
  * 1️⃣ GET TOTAL USER BALANCE
  ************************************************************/
@@ -359,46 +359,31 @@ export const getWithdrawHistory = async (req, res) => {
   }
 };
 
+
 export const chapaTransferApproval = async (req, res) => {
   try {
-    const secret = process.env.CHAPA_APPROVAL_SECRET;
+    const approvalSecret = process.env.CHAPA_APPROVAL_SECRET;
 
-    if (!secret) {
-      console.error("❌ CHAPA_APPROVAL_SECRET not set.");
-      return res.status(500).send("Approval secret missing.");
-    }
+    const receivedSignature = req.headers["chapa-signature"];
 
-    // 1️⃣ GET SIGNATURE FROM HEADER
-    const chapaSignature = req.headers["chapa-signature"];
-    if (!chapaSignature) {
-      console.warn("❌ Missing Chapa-Signature header");
-      return res.status(400).send("Missing signature.");
-    }
-
-    // 2️⃣ Encode request body EXACTLY as sent by Chapa
-    const rawBody = JSON.stringify(req.body);
-
-    // 3️⃣ Generate HMAC SHA256 hash
-    const generatedHash = crypto
-      .createHmac("sha256", secret)
-      .update(rawBody)
+    // Generate correct signature based on docs
+    const generatedSignature = crypto
+      .createHmac("sha256", approvalSecret)
+      .update(approvalSecret)
       .digest("hex");
 
-    console.log("🔍 Received signature:", chapaSignature);
-    console.log("🔍 Generated signature:", generatedHash);
+    console.log("🔍 Received signature:", receivedSignature);
+    console.log("🔍 Generated signature:", generatedSignature);
 
-    // 4️⃣ Compare both hashes
-    if (generatedHash !== chapaSignature) {
-      console.warn("❌ Signature mismatch → REJECT TRANSFER");
-      return res.status(400).send("Invalid signature.");
+    if (receivedSignature !== generatedSignature) {
+      console.log("❌ Signature mismatch → REJECT TRANSFER");
+      return res.status(400).send("Invalid signature");
     }
 
-    // 5️⃣ SUCCESS → APPROVE TRANSFER
-    console.log("✅ Transfer Approved by Server:", req.body);
-
+    console.log("✅ Signature valid → APPROVE TRANSFER");
     return res.status(200).send("Approved");
-  } catch (error) {
-    console.error("❌ Transfer approval failed:", error);
-    return res.status(400).send("Approval failed.");
+  } catch (err) {
+    console.error("Server Error:", err);
+    return res.status(500).send("Server error");
   }
 };
