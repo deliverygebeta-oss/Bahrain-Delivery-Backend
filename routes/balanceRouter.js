@@ -1,5 +1,5 @@
 import express from "express";
-import { getBalance, requestWithdraw, getTransactionHistory  ,getWithdrawHistory ,initWithdraw } from "../controllers/balanceController.js";
+import { getBalance, requestWithdraw, getTransactionHistory  ,getWithdrawHistory ,initWithdraw ,chapaTransferApproval} from "../controllers/balanceController.js";
 import { protect,restrictTo } from "../controllers/authController.js"; // optional, if you have authentication
 
 const router = express.Router();
@@ -18,4 +18,7 @@ router.get("/history",protect, restrictTo("Delivery_Person","Manager") , getTran
 router.get("/withdraw-history/:requesterType",restrictTo("Admin"), getWithdrawHistory);
 
 router.get("/initialize-withdraw", protect , restrictTo("Delivery_Person","Manager") , initWithdraw);
+
+router.post("/chapa-transfer-approval", chapaTransferApproval);
+
 export default router;

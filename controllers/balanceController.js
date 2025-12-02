@@ -358,3 +358,47 @@ export const getWithdrawHistory = async (req, res) => {
     });
   }
 };
+
+export const chapaTransferApproval = async (req, res) => {
+  try {
+    const secret = process.env.CHAPA_APPROVAL_SECRET;
+
+    if (!secret) {
+      console.error("❌ CHAPA_APPROVAL_SECRET not set.");
+      return res.status(500).send("Approval secret missing.");
+    }
+
+    // 1️⃣ GET SIGNATURE FROM HEADER
+    const chapaSignature = req.headers["chapa-signature"];
+    if (!chapaSignature) {
+      console.warn("❌ Missing Chapa-Signature header");
+      return res.status(400).send("Missing signature.");
+    }
+
+    // 2️⃣ Encode request body EXACTLY as sent by Chapa
+    const rawBody = JSON.stringify(req.body);
+
+    // 3️⃣ Generate HMAC SHA256 hash
+    const generatedHash = crypto
+      .createHmac("sha256", secret)
+      .update(rawBody)
+      .digest("hex");
+
+    console.log("🔍 Received signature:", chapaSignature);
+    console.log("🔍 Generated signature:", generatedHash);
+
+    // 4️⃣ Compare both hashes
+    if (generatedHash !== chapaSignature) {
+      console.warn("❌ Signature mismatch → REJECT TRANSFER");
+      return res.status(400).send("Invalid signature.");
+    }
+
+    // 5️⃣ SUCCESS → APPROVE TRANSFER
+    console.log("✅ Transfer Approved by Server:", req.body);
+
+    return res.status(200).send("Approved");
+  } catch (error) {
+    console.error("❌ Transfer approval failed:", error);
+    return res.status(400).send("Approval failed.");
+  }
+};
