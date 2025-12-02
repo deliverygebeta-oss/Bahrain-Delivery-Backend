@@ -1,5 +1,5 @@
 import express from "express";
-import { getBalance, requestWithdraw, getTransactionHistory  ,getWithdrawHistory ,getMobileMoneyBanks } from "../controllers/balanceController.js";
+import { getBalance, requestWithdraw, getTransactionHistory  ,getWithdrawHistory ,initWithdraw } from "../controllers/balanceController.js";
 import { protect,restrictTo } from "../controllers/authController.js"; // optional, if you have authentication
 
 const router = express.Router();
@@ -8,14 +8,14 @@ const router = express.Router();
 router.use(protect);
 
 // Get current balance
-router.get("/", getBalance);
+router.get("/", protect , restrictTo("Delivery_Person","Manager") , getBalance);
 
 // Request a withdrawal
-router.post("/withdraw", requestWithdraw);
+router.post("/withdraw", protect , restrictTo("Delivery_Person","Manager") , requestWithdraw);
 
-router.get("/history", getTransactionHistory );
+router.get("/history",protect, restrictTo("Delivery_Person","Manager") , getTransactionHistory );
 
 router.get("/withdraw-history/:requesterType",restrictTo("Admin"), getWithdrawHistory);
 
-router.get("/bank", protect , getMobileMoneyBanks);
+router.get("/initialize-withdraw", protect , restrictTo("Delivery_Person","Manager") , initWithdraw);
 export default router;

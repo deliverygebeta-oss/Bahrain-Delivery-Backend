@@ -3,109 +3,231 @@ import Restaurant from "../models/restaurantModel.js";
 import { TRANSACTION_STATUSES } from "../models/Transaction.js";
 import axios from "axios";
 
+/************************************************************
+ * 1️⃣ GET TOTAL USER BALANCE
+ ************************************************************/
 export const getBalance = async (req, res, next) => {
   try {
     const userId = req.user?._id;
 
+    let requesterId;
+
+
+  
     if (!userId) {
-      return res.status(401).json({
-        status: "fail",
-        message: "User not authenticated.",
-      });
+      return res.status(401).json({ status: "fail", message: "User not authenticated." });
     }
 
-    // ✅ Calculate total balance using static method
-    const balance = await Balance.calculateTotal(userId);
+    if (req.user.role === "Delivery_Person") {
+      requesterId = req.user._id;
+    } else if (req.user.role === "Manager") {
+      const restaurant = await Restaurant.findOne({ managerId: req.user._id });
+      if (!restaurant) {
+        return res.status(404).json({ status: "fail", message: "Restaurant not found." });
+      }
+      requesterId = restaurant._id;
+    }
+
+    const balance = await Balance.calculateTotal(requesterId);
     const amount = parseFloat(balance.toString());
 
     res.status(200).json({
       status: "success",
       message: "Total balance retrieved successfully.",
-      data: {
-        amount,
-        currency: "ETB",
-      },
+      data: { amount, currency: "ETB" },
     });
   } catch (error) {
     next(error);
   }
 };
 
+
+/************************************************************
+ * 2️⃣ CHAPA — SEND TRANSFER
+ ************************************************************/
+export const sendChapaTransfer = async ({ accountName, accountNumber, amount, bankCode }) => {
+  const payload = {
+    account_name: accountName,
+    account_number: accountNumber,
+    amount: amount.toString(),
+    currency: "ETB",
+    reference: "REF-" + Date.now(),
+    bank_code: bankCode,
+  };
+
+  const response = await axios.post("https://api.chapa.co/v1/transfers", payload, {
+    headers: {
+      Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  return response.data;
+};
+
+
+/************************************************************
+ * 3️⃣ INIT WITHDRAW → RETURNS USER BALANCE + BANK LIST
+ ************************************************************/
+export const initWithdraw = async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (!user?._id) {
+      return res.status(401).json({ status: "fail", message: "User not authenticated." });
+    }
+
+    let requesterId;
+
+    if (user.role === "Delivery_Person") {
+      requesterId = user._id;
+    } else if (user.role === "Manager") {
+      const restaurant = await Restaurant.findOne({ managerId: user._id });
+      if (!restaurant) {
+        return res.status(404).json({
+          status: "fail",
+          message: "Restaurant not found for this manager.",
+        });
+      }
+      requesterId = restaurant._id;
+    }
+
+    const balance = await Balance.calculateTotal(requesterId);
+    const availableBalance = parseFloat(balance || 0);
+
+    const response = await axios.get("https://api.chapa.co/v1/banks", {
+      headers: {
+        Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+      },
+    });
+
+    const banks = response.data.data;
+    const mobileBanks = banks.filter(bank => [855, 128].includes(bank.id)); // TeleBirr + CBE birr
+
+    return res.status(200).json({
+      status: "success",
+      data: {
+        balance: availableBalance,
+        banks: mobileBanks,
+        phone: user.phone,
+        name: `${user.firstName} ${user.lastName}`,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "Initialization failed",
+      error: error.response?.data || error.message,
+    });
+  }
+};
+
+
+/************************************************************
+ * 4️⃣ REQUEST WITHDRAW → SEND MONEY IMMEDIATELY
+ ************************************************************/
 export const requestWithdraw = async (req, res, next) => {
   try {
     const user = req.user;
-    const { amount, note } = req.body;
+    const { amount, bankId, note } = req.body;
 
     if (!user?._id) {
-      return res.status(401).json({
-        status: "fail",
-        message: "User not authenticated.",
-      });
+      return res.status(401).json({ status: "fail", message: "User not authenticated." });
     }
 
-    // ✅ Validate amount
     if (!amount || isNaN(amount) || amount <= 0) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Please provide a valid withdrawal amount greater than 0.",
-      });
+      return res.status(400).json({ status: "fail", message: "Invalid withdrawal amount." });
     }
 
+    if (!bankId) {
+      return res.status(400).json({ status: "fail", message: "Bank is required." });
+    }
+
+    /***********************
+     * Determine requester
+     ***********************/
     let requesterId;
     let requesterType;
 
-    // Determine requester based on role
-    if (user.role === 'Delivery_Person') {
+    if (user.role === "Delivery_Person") {
       requesterId = user._id;
       requesterType = REQUESTER_TYPES.Delivery;
     } else if (user.role === "Manager") {
-      // Fetch the restaurant managed by this manager
       const restaurant = await Restaurant.findOne({ managerId: user._id });
       if (!restaurant) {
-        return res.status(404).json({
-          status: "fail",
-          message: "No restaurant found for this manager.",
-        });
+        return res.status(404).json({ status: "fail", message: "Restaurant not found." });
       }
       requesterId = restaurant._id;
       requesterType = REQUESTER_TYPES.Restaurant;
-    } else {
-      return res.status(403).json({
-        status: "fail",
-        message: "Unauthorized role for withdrawal.",
-      });
     }
 
-    // ✅ Compute current balance
-    const currentBalance = await Balance.calculateTotal(requesterId);
-    const availableBalance = parseFloat(currentBalance?.toString() || "0");
+    /***********************
+     * Check balance
+     ***********************/
+    const balance = await Balance.calculateTotal(requesterId);
+    const availableBalance = parseFloat(balance || 0);
 
     if (availableBalance < amount) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Insufficient balance for withdrawal.",
-      });
+      return res.status(400).json({ status: "fail", message: "Insufficient balance." });
     }
 
-    // ✅ Create withdrawal transaction
-    const withdraw = await Balance.create({
+    /***********************
+     * Auto-filled values
+     ***********************/
+    const accountNumber = user.phone;
+    const accountName = `${user.firstName} ${user.lastName}`;
+
+    /***********************
+     * Save transaction first
+     ***********************/
+    let withdraw = await Balance.create({
       requesterType,
-      restaurantId:
-        requesterType === REQUESTER_TYPES.Restaurant ? requesterId : undefined,
-      deliveryId:
-        requesterType === REQUESTER_TYPES.Delivery ? requesterId : undefined,
+      restaurantId: requesterType === REQUESTER_TYPES.Restaurant ? requesterId : undefined,
+      deliveryId: requesterType === REQUESTER_TYPES.Delivery ? requesterId : undefined,
       amount,
       type: TRANSACTION_TYPES.Withdraw,
       note,
-      status: TRANSACTION_STATUSES.PENDING, // Admin can later approve it
+      status: TRANSACTION_STATUSES.PROCESSING,
+      bankId,
+      accountName,
+      accountNumber,
     });
 
-    res.status(201).json({
+    /***********************
+     * CHAPA PAYOUT
+     ***********************/
+    let chapaResponse;
+
+    try {
+      chapaResponse = await sendChapaTransfer({
+        accountName,
+        accountNumber,
+        amount,
+        bankCode: bankId,
+      });
+    } catch (error) {
+      withdraw.status = TRANSACTION_STATUSES.FAILED;
+      await withdraw.save();
+
+      return res.status(500).json({
+        status: "fail",
+        message: "Chapa payout failed.",
+        error: error.message,
+      });
+    }
+
+    withdraw.status = TRANSACTION_STATUSES.SUCCESS;
+    withdraw.chapaResponse = chapaResponse;
+    await withdraw.save();
+
+    return res.status(200).json({
       status: "success",
-      message: "Withdrawal request submitted successfully.",
+      message: "Withdrawal successful!",
       data: {
         withdraw,
         remainingBalance: availableBalance - amount,
+        chapa: chapaResponse,
       },
     });
   } catch (error) {
@@ -113,37 +235,33 @@ export const requestWithdraw = async (req, res, next) => {
   }
 };
 
+
+/************************************************************
+ * 5️⃣ USER TRANSACTION HISTORY
+ ************************************************************/
 export const getTransactionHistory = async (req, res) => {
   try {
-    const user = req.user; // Auth middleware sets req.user
+    const user = req.user;
+
     let requesterId;
     let requesterType;
-    // Determine role and requester
-    if (user.role === 'Delivery_Person') {
+
+    if (user.role === "Delivery_Person") {
       requesterId = user._id;
       requesterType = REQUESTER_TYPES.Delivery;
-    } else if (user.role === 'Manager') {
-      // Manager: fetch their restaurant(s) first
+    } else if (user.role === "Manager") {
       const restaurant = await Restaurant.findOne({ managerId: user._id });
       if (!restaurant) {
-        return res.status(404).json({
-          status: "fail",
-          message: "No restaurant found for this manager",
-        });
+        return res.status(404).json({ status: "fail", message: "No restaurant found" });
       }
       requesterId = restaurant._id;
       requesterType = REQUESTER_TYPES.Restaurant;
     } else {
-      return res.status(403).json({
-        status: "fail",
-        message: "Unauthorized role",
-      });
+      return res.status(403).json({ status: "fail", message: "Unauthorized role" });
     }
 
-    // Fetch transactions with running balance
     const transactions = await Balance.getTransactionsWithRunningBalance(requesterId);
 
-    // Format Decimal128 to float
     const formattedTransactions = transactions.map(tx => ({
       id: tx._id,
       type: tx.type,
@@ -155,7 +273,6 @@ export const getTransactionHistory = async (req, res) => {
       currentBalance: parseFloat(tx.currentBalance?.toString() || "0"),
     }));
 
-    // Total balance
     const totalBalance = await Balance.calculateTotal(requesterId);
 
     res.status(200).json({
@@ -172,107 +289,61 @@ export const getTransactionHistory = async (req, res) => {
     });
   }
 };
+
+
+/************************************************************
+ * 6️⃣ WITHDRAW HISTORY (ADMIN SIDE)
+ ************************************************************/
 export const getWithdrawHistory = async (req, res) => {
   try {
     const requesterType = req.params.requesterType;
-    const { type = "Withdraw", status = TRANSACTION_STATUSES.PENDING } = req.query;
-
-    // Validate requester type
-    if (!requesterType) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Requester type is required",
-      });
-    }
+    const { type = "Withdraw", status } = req.query;
 
     if (!Object.values(REQUESTER_TYPES).includes(requesterType)) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Invalid requester type",
-      });
+      return res.status(400).json({ status: "fail", message: "Invalid requester type" });
     }
 
-    // Base query
-    const query = {
-      requesterType,
-      type, // ✅ Filter by type (Deposit or Withdraw)
-      status, // ✅ Filter by status (default: PENDING)
-    };
+    const query = { requesterType, type };
+    if (status) query.status = status;
 
-    // Fetch data based on requester type
     let historyQuery;
 
     if (requesterType === REQUESTER_TYPES.Delivery) {
       historyQuery = Balance.find(query)
-        .populate("deliveryId", "firstName lastName phone profilePicture role")
+        .populate("deliveryId", "firstName lastName phone role")
         .sort({ createdAt: -1 });
-    } else if (requesterType === REQUESTER_TYPES.Restaurant) {
+    } else {
       historyQuery = Balance.find(query)
-        .populate("restaurantId", "name phone profilePicture")
+        .populate("restaurantId", "name phone")
         .sort({ createdAt: -1 });
     }
 
-    const History = await historyQuery;
+    const history = await historyQuery;
 
-    // Format response — removing extra nested requesterId, keeping main fields only
-    const formattedHistory = History.map((item) => ({
+    const formatted = history.map(item => ({
       _id: item._id,
       requesterType: item.requesterType,
       deliveryId: item.deliveryId,
       restaurantId: item.restaurantId,
       amount: item.amount,
-      currency: item.currency,
       type: item.type,
       note: item.note,
       status: item.status,
-      fee: item.fee,
       createdAt: item.createdAt,
+      bankId: item.bankId,
     }));
 
     return res.status(200).json({
       status: "success",
-      results: formattedHistory.length,
-      data: formattedHistory,
+      results: formatted.length,
+      data: formatted,
     });
   } catch (error) {
-    console.error("❌ Error fetching withdraw history:", error);
+    console.error("Error fetching withdraw history:", error);
     return res.status(500).json({
       status: "error",
       message: "Something went wrong",
       error: error.message,
-    });
-  }
-};
-/// ok
-
-
-export const getMobileMoneyBanks = async (req, res) => {
-  try {
-    const response = await axios.get("https://api.chapa.co/v1/banks", {
-      headers: {
-        Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
-      },
-    });
-
-    const banks = response.data.data;
-
-    // Select telebirr (id: 855) and CBEBirr (id: 128)
-    const mobileBanks = banks.filter(bank =>
-      [855, 128].includes(bank.id)
-    );
-
-    return res.status(200).json({
-      status: "success",
-      data: mobileBanks,
-    });
-
-  } catch (error) {
-    console.error("Error fetching bank:", error.response?.data || error.message);
-
-    return res.status(500).json({
-      status: "error",
-      message: "Something went wrong",
-      error: error.response?.data || error.message,
     });
   }
 };
