@@ -362,6 +362,8 @@ export const getWithdrawHistory = async (req, res) => {
 
 export const chapaTransferApproval = async (req, res) => {
   try {
+
+    console.log(req.headers);
     const approvalSecret = process.env.CHAPA_APPROVAL_SECRET;
     console.log(approvalSecret);
     const receivedSignature = req.headers["chapa-signature"];
