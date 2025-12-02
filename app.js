@@ -1,6 +1,5 @@
 // app.js (SECURE PRODUCTION VERSION)
 import express from 'express';
-import morgan from 'morgan';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import cors from 'cors';
@@ -53,11 +52,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
-
-// -----------------------
-// LOGGING
-// -----------------------
-app.use(morgan(isProd ? 'combined' : 'dev'));
 
 // -----------------------
 // BODY PARSER
