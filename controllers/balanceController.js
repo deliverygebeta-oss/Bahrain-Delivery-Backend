@@ -1,7 +1,7 @@
 import Balance, { REQUESTER_TYPES, TRANSACTION_TYPES } from "../models/Balance.js";
 import Restaurant from "../models/restaurantModel.js";
 import { TRANSACTION_STATUSES } from "../models/Transaction.js";
-
+import axios from "axios";
 
 export const getBalance = async (req, res, next) => {
   try {
@@ -240,6 +240,38 @@ export const getWithdrawHistory = async (req, res) => {
       status: "error",
       message: "Something went wrong",
       error: error.message,
+    });
+  }
+};
+
+
+export const getMobileMoneyBanks = async (req, res) => {
+  try {
+    const response = await axios.get("https://api.chapa.co/v1/banks", {
+      headers: {
+        Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+      },
+    });
+
+    const banks = response.data.data;
+
+    // Select telebirr (id: 855) and CBEBirr (id: 128)
+    const mobileBanks = banks.filter(bank =>
+      [855, 128].includes(bank.id)
+    );
+
+    return res.status(200).json({
+      status: "success",
+      data: mobileBanks,
+    });
+
+  } catch (error) {
+    console.error("Error fetching bank:", error.response?.data || error.message);
+
+    return res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.response?.data || error.message,
     });
   }
 };

@@ -3,7 +3,6 @@ import express from 'express';
 import morgan from 'morgan';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-// import cors from 'cors';
 
 // SECURITY PACKAGES
 import helmet from 'helmet';
@@ -44,15 +43,6 @@ if (isProd) {
 // SECURITY HEADERS
 // -----------------------
 app.use(helmet());
-
-// -----------------------
-// CORS (Secure in Prod, open in Dev)
-// -----------------------
-// app.use(cors({
-//   origin: isProd ? process.env.FRONTEND_URL : true, 
-//   credentials: true,
-//   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-// }));
 
 // -----------------------
 // LOGGING
