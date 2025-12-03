@@ -361,7 +361,7 @@ export const getWithdrawHistory = async (req, res) => {
 
 export const chapaTransferApproval = async (req, res) => {
   try {
-    const approvalSecret = process.env.CHAPA_APPROVAL_SECRET;
+    const approvalSecret = process.env.CHAPA_SIGNATURE;
 
     if (!approvalSecret) {
       console.error("CHAPA_APPROVAL_SECRET is not set");
