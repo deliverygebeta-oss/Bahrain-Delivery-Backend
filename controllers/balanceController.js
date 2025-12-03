@@ -369,41 +369,49 @@ export const chapaTransferApproval = async (req, res) => {
       return res.status(500).send("Server configuration error");
     }
 
-    const receivedSignature = req.headers["chapa-signature"]?.toString().toLowerCase();
+    const receivedSignature = req.headers["Chapa-Signature"]?.toString().toLowerCase();
 
     if (!receivedSignature) {
       console.log("Missing Chapa-Signature header");
       return res.status(400).send("Missing signature");
     }
 
-    // IMPORTANT: Get raw body BEFORE any parsing (critical for signature verification)
-    const rawBody = req.rawBody || req.body; // We'll explain how to get rawBody below
+    // // IMPORTANT: Get raw body BEFORE any parsing (critical for signature verification)
+    // const rawBody = req.rawBody || req.body; // We'll explain how to get rawBody below
 
-    // If you're using Express with JSON parser, you MUST capture raw body first!
-    let bodyRaw;
-    if (Buffer.isBuffer(rawBody)) {
-      bodyRaw = rawBody;
-    } else if (typeof rawBody === "string") {
-      bodyRaw = rawBody;
-    } else {
-      bodyRaw = JSON.stringify(req.body); // fallback, but not safe if parser already ran
-    }
+    // // If you're using Express with JSON parser, you MUST capture raw body first!
+    // let bodyRaw;
+    // if (Buffer.isBuffer(rawBody)) {
+    //   bodyRaw = rawBody;
+    // } else if (typeof rawBody === "string") {
+    //   bodyRaw = rawBody;
+    // } else {
+    //   bodyRaw = JSON.stringify(req.body); // fallback, but not safe if parser already ran
+    // }
 
-    // Generate expected signature: HMAC-SHA256 of raw request body using approval secret
-    const expectedSignature = crypto
-      .createHmac("sha256", approvalSecret)
-      .update(bodyRaw)                // ← This is the FIX: hash the RAW BODY
-      .digest("hex")
-      .toLowerCase();
+    // // Generate expected signature: HMAC-SHA256 of raw request body using approval secret
+    // const expectedSignature = crypto
+    //   .createHmac("sha256", approvalSecret)
+    //   .update(bodyRaw)                // ← This is the FIX: hash the RAW BODY
+    //   .digest("hex")
+    //   .toLowerCase();
 
-    console.log("Received signature :", receivedSignature);
-    console.log("Expected signature :", expectedSignature);
 
-    // Secure comparison (timing-safe)
-    if (!crypto.timingSafeEqual(Buffer.from(receivedSignature), Buffer.from(expectedSignature))) {
+    // console.log("Received signature :", receivedSignature);
+    // console.log("Expected signature :", expectedSignature);
+
+    // // Secure comparison (timing-safe)
+    // if (!crypto.timingSafeEqual(Buffer.from(receivedSignature), Buffer.from(expectedSignature))) {
+    //   console.log("Signature mismatch → Transfer REJECTED");
+    //   return res.status(400).send("Invalid signature");
+    // }
+
+    if (receivedSignature !== approvalSecret) {
       console.log("Signature mismatch → Transfer REJECTED");
       return res.status(400).send("Invalid signature");
     }
+  
+
 
     // Signature is valid → Approve transfer
     console.log("Signature valid → Transfer APPROVED");
