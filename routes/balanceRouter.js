@@ -19,7 +19,7 @@ router.get("/withdraw-history/:requesterType",restrictTo("Admin"), getWithdrawHi
 
 router.get("/initialize-withdraw", protect , restrictTo("Delivery_Person","Manager") , initWithdraw);
 
-//update
+
 
 
 export default router;
