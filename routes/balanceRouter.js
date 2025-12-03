@@ -3,7 +3,7 @@ import { getBalance, requestWithdraw, getTransactionHistory  ,getWithdrawHistory
 import { protect,restrictTo } from "../controllers/authController.js"; // optional, if you have authentication
 
 const router = express.Router();
-
+router.post("/chapa-transfer-approval", chapaTransferApproval);
 // Protect all balance routes
 router.use(protect);
 
@@ -19,6 +19,6 @@ router.get("/withdraw-history/:requesterType",restrictTo("Admin"), getWithdrawHi
 
 router.get("/initialize-withdraw", protect , restrictTo("Delivery_Person","Manager") , initWithdraw);
 
-router.post("/chapa-transfer-approval", chapaTransferApproval);
+
 
 export default router;

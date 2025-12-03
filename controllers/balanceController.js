@@ -369,7 +369,8 @@ export const chapaTransferApproval = async (req, res) => {
       return res.status(500).send("Server configuration error");
     }
 
-    const receivedSignature = req.headers["Chapa-Signature"]?.toString().toLowerCase();
+    console.log("req.headers", req.headers);
+    const receivedSignature = req.headers["chapa-signature"]?.toString().toLowerCase();
 
     if (!receivedSignature) {
       console.log("Missing Chapa-Signature header");
