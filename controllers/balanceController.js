@@ -359,7 +359,6 @@ export const getWithdrawHistory = async (req, res) => {
   }
 };
 
-
 export const chapaTransferApproval = async (req, res) => {
   try {
     const approvalSecret = process.env.CHAPA_APPROVAL_SECRET;
@@ -369,48 +368,25 @@ export const chapaTransferApproval = async (req, res) => {
       return res.status(500).send("Server configuration error");
     }
 
+    // Chapa sends a simple approval header (NOT chapa-signature)
     const receivedSignature = req.headers["chapa-signature"]?.toString().toLowerCase();
 
     if (!receivedSignature) {
-      console.log("Missing Chapa-Signature header");
-      return res.status(400).send("Missing signature");
+      console.log("Missing x-chapa-approval-secret header");
+      return res.status(400).send("Missing approval header");
     }
 
-    // IMPORTANT: Get raw body BEFORE any parsing (critical for signature verification)
-    const rawBody = req.rawBody || req.body; // We'll explain how to get rawBody below
-
-    // If you're using Express with JSON parser, you MUST capture raw body first!
-    let bodyRaw;
-    if (Buffer.isBuffer(rawBody)) {
-      bodyRaw = rawBody;
-    } else if (typeof rawBody === "string") {
-      bodyRaw = rawBody;
-    } else {
-      bodyRaw = JSON.stringify(req.body); // fallback, but not safe if parser already ran
+    // Compare your secret with what Chapa sent
+    if (receivedSignature !== approvalSecret) {
+      console.log("Approval secret mismatch → Transfer REJECTED");
+      return res.status(401).send("Unauthorized");
     }
 
-    // Generate expected signature: HMAC-SHA256 of raw request body using approval secret
-    const expectedSignature = crypto
-      .createHmac("sha256", approvalSecret)
-      .update(bodyRaw)                // ← This is the FIX: hash the RAW BODY
-      .digest("hex")
-      .toLowerCase();
-
-    console.log("Received signature :", receivedSignature);
-    console.log("Expected signature :", expectedSignature);
-
-    // Secure comparison (timing-safe)
-    if (!crypto.timingSafeEqual(Buffer.from(receivedSignature), Buffer.from(expectedSignature))) {
-      console.log("Signature mismatch → Transfer REJECTED");
-      return res.status(400).send("Invalid signature");
-    }
-
-    // Signature is valid → Approve transfer
-    console.log("Signature valid → Transfer APPROVED");
+    console.log("Transfer APPROVED by Chapa");
     console.log("Transfer Details:", req.body);
 
-    // Optional: Add your own business logic here
-    // e.g., check amount, reference uniqueness, account number, etc.
+    // TODO: Your business logic...
+    // save transfer log, verify reference, update wallet, etc.
 
     return res.status(200).send("Approved");
 
@@ -419,4 +395,5 @@ export const chapaTransferApproval = async (req, res) => {
     return res.status(500).send("Internal server error");
   }
 };
+
 //export default chapaTransferApproval;
