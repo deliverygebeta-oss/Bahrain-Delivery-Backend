@@ -359,6 +359,9 @@ export const getWithdrawHistory = async (req, res) => {
   }
 };
 
+
+
+
 export const chapaTransferApproval = async (req, res) => {
   try {
     const approvalSecret = process.env.CHAPA_SIGNATURE;
@@ -368,26 +371,36 @@ export const chapaTransferApproval = async (req, res) => {
       return res.status(500).send("Server configuration error");
     }
 
-    // Chapa sends a simple approval header (NOT chapa-signature)
+    // 1. Read Chapa signature
     const receivedSignature = req.headers["chapa-signature"]?.toString().toLowerCase();
 
     if (!receivedSignature) {
-      console.log("Missing x-chapa-approval-secret header");
-      return res.status(400).send("Missing approval header");
+      console.log("Missing Chapa-Signature header");
+      return res.status(400).send("Missing signature");
     }
 
-    // Compare your secret with what Chapa sent
-    if (receivedSignature !== approvalSecret) {
-      console.log("Approval secret mismatch → Transfer REJECTED");
-      return res.status(401).send("Unauthorized");
+    // 2. Generate expected signature:
+    // HMAC-SHA256(secret, secret)
+    const expectedSignature = crypto
+      .createHmac("sha256", approvalSecret)
+      .update(approvalSecret)
+      .digest("hex")
+      .toLowerCase();
+
+    console.log("Received signature :", receivedSignature);
+    console.log("Expected signature :", expectedSignature);
+
+    // 3. Compare securely
+    if (!crypto.timingSafeEqual(Buffer.from(receivedSignature), Buffer.from(expectedSignature))) {
+      console.log("Signature mismatch → Transfer REJECTED");
+      return res.status(400).send("Invalid signature");
     }
 
-    console.log("Transfer APPROVED by Chapa");
+    // 4. Signature valid → approve transfer
+    console.log("Signature valid → Transfer APPROVED");
     console.log("Transfer Details:", req.body);
 
-    // TODO: Your business logic...
-    // save transfer log, verify reference, update wallet, etc.
-
+    // Return 200 to approve
     return res.status(200).send("Approved");
 
   } catch (err) {
@@ -395,5 +408,6 @@ export const chapaTransferApproval = async (req, res) => {
     return res.status(500).send("Internal server error");
   }
 };
+
 
 //export default chapaTransferApproval;
