@@ -9,7 +9,10 @@ export const TRANSACTION_STATUSES = {
   FAILED: "FAILED",
   REFUNDED: "REFUNDED",
   CANCELLED: "CANCELLED",
-  PROCESSING: "PROCESSING"
+  PROCESSING: "PROCESSING",
+  SUCCESS: "SUCCESS",
+  APPROVED: "APPROVED",
+
 };
 // =================================================================== 
 // CHAPA-SPECIFIC CONSTANTS
