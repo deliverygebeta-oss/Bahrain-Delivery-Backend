@@ -31,6 +31,59 @@ async function getRequester(req) {
 
   return null;
 }
+const autoValidateChapaTransfer = async (withdrawId) => {
+  try {
+    const withdraw = await Balance.findById(withdrawId);
+
+    if (!withdraw) {
+      console.log("❌ Withdraw not found:", withdrawId);
+      return;
+    }
+
+    if (!withdraw.chapaResponse?.data?.reference) {
+      console.log("❌ No Chapa reference found on withdraw:", withdrawId);
+      return;
+    }
+
+    const reference = withdraw.chapaResponse.data.reference;
+
+    // Call Chapa verify API
+    const response = await axios.get(
+      `https://api.chapa.co/v1/transfers/verify/${reference}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+        },
+      }
+    );
+
+    const result = response.data;
+
+    if (result.status !== "success") {
+      console.log("❌ Transfer still pending or failed:", reference);
+      return;
+    }
+
+    const chapaStatus = result.data.status; // success, failed, pending
+
+    console.log("🔍 Chapa status:", chapaStatus);
+
+    // Update DB
+    if (chapaStatus === "success") {
+      withdraw.status = "SUCCESS";
+    } else if (chapaStatus === "failed") {
+      withdraw.status = "FAILED";
+    } else {
+      withdraw.status = "PENDING";
+    }
+
+    await withdraw.save();
+
+    console.log(`✅ Withdraw ${withdrawId} status updated → ${withdraw.status}`);
+  } catch (err) {
+    console.error("Auto-validate error:", err.response?.data || err.message);
+  }
+};
 
 /************************************************************
  * 1️⃣ GET TOTAL USER BALANCE
@@ -243,6 +296,8 @@ export const requestWithdraw = async (req, res, next) => {
     withdrawal.chapaResponse = transferRes;
     await withdrawal.save();
 
+    autoValidateChapaTransfer(withdrawal._id); // FIXED HERE ✔✔✔
+
     return res.status(200).json({
       status: "success",
       message: "Withdrawal initiated.",
@@ -370,13 +425,11 @@ export const chapaTransferApproval = async (req, res) => {
     if (receivedSig.toLowerCase() !== expected) {
       return res.status(400).send("Invalid signature");
     }
-
     const { reference } = req.body;
     const withdraw = await Balance.findById(reference);
 
     if (!withdraw) return res.status(400).send("Withdraw record not found");
-
-    withdraw.status = TRANSACTION_STATUSES.SUCCESS;
+    withdraw.chapaResponse = req.body;
     await withdraw.save();
 
     return res.status(200).send("Approved");
