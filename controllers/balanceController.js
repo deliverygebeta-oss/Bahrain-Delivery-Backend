@@ -374,65 +374,52 @@ export const chapaTransferApproval = async (req, res) => {
     const approvalSecret = process.env.CHAPA_SIGNATURE;
 
     if (!approvalSecret) {
-      console.error("CHAPA_APPROVAL_SECRET is not set");
+      console.error("CHAPA_SIGNATURE is not set in environment variables");
       return res.status(500).send("Server configuration error");
     }
-    const receivedSignature = req.headers["chapa-signature"]?.toString().toLowerCase();
+
+    // 1️⃣ Get Chapa signature from header
+    const receivedSignature = req.headers["chapa-signature"];
 
     if (!receivedSignature) {
       console.log("Missing Chapa-Signature header");
       return res.status(400).send("Missing signature");
     }
 
-    // IMPORTANT: Get raw body BEFORE any parsing (critical for signature verification)
-    const rawBody = req.rawBody || req.body; // We'll explain how to get rawBody below
-
-    // If you're using Express with JSON parser, you MUST capture raw body first!
-    let bodyRaw;
-    if (Buffer.isBuffer(rawBody)) {
-      bodyRaw = rawBody;
-    } else if (typeof rawBody === "string") {
-      bodyRaw = rawBody;
-    } else {
-      bodyRaw = JSON.stringify(req.body); // fallback, but not safe if parser already ran
-    }
-    console.log("bodyRaw", bodyRaw);
-
-    // Generate expected signature: HMAC-SHA256 of raw request body using approval secret
+    // 2️⃣ Generate expected signature: HMAC_SHA256(secret, secret)
     const expectedSignature = crypto
       .createHmac("sha256", approvalSecret)
-      .update(bodyRaw)                // ← This is the FIX: hash the RAW BODY
+      .update(approvalSecret)
       .digest("hex")
       .toLowerCase();
 
+    console.log("Received:", receivedSignature);
+    console.log("Expected:", expectedSignature);
 
-    console.log("Received signature :", receivedSignature);
-    console.log("Expected signature :", expectedSignature);
-
-    // Secure comparison (timing-safe)
-    if (!crypto.timingSafeEqual(Buffer.from(receivedSignature), Buffer.from(expectedSignature))) {
+    // 3️⃣ Compare signatures (secure comparison)
+    if (
+      !crypto.timingSafeEqual(
+        Buffer.from(receivedSignature.toLowerCase()),
+        Buffer.from(expectedSignature)
+      )
+    ) {
       console.log("Signature mismatch → Transfer REJECTED");
       return res.status(400).send("Invalid signature");
     }
 
-    // if (receivedSignature !== approvalSecret) {
-    //   console.log("Signature mismatch → Transfer REJECTED");
-    //   return res.status(400).send("Invalid signature");
-    // }
-  
-
-
-    // Signature is valid → Approve transfer
+    // 4️⃣ Signature valid → Approve transfer
     console.log("Signature valid → Transfer APPROVED");
-    console.log("Transfer Details:", req.body);
+    console.log("Transfer Data:", req.body);
 
-    // Optional: Add your own business logic here
-    // e.g., check amount, reference uniqueness, account number, etc.
+    // Optional: Add internal business validation here
+    // - verify reference exists in your DB
+    // - validate amount limits
+    // - fraud checks, etc.
 
     return res.status(200).send("Approved");
 
   } catch (err) {
-    console.error("Server Error in Chapa Approval:", err);
+    console.error("Error in Chapa Transfer Approval:", err);
     return res.status(500).send("Internal server error");
   }
 };
