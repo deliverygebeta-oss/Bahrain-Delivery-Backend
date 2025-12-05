@@ -40,7 +40,7 @@ const autoValidateChapaTransfer = async (withdrawId) => {
       return;
     }
 
-    if (!withdraw.chapaResponse?.data?.reference) {
+    if (!withdraw.chapaResponse?.reference) {
       console.log("❌ No Chapa reference found on withdraw:", withdrawId);
       return;
     }
