@@ -54,12 +54,11 @@ export const sendChapaTransfer = async ({ accountName, accountNumber, amount, ba
     reference: "REF-" + Date.now(),
     bank_code: bankCode,
   };
-
+console.log("payload", payload);
   const response = await axios.post("https://api.chapa.co/v1/transfers", payload, {
     headers: {
       Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
-      "Content-Type": "application/json",
-      "Chapa-Signature": process.env.CHAPA_SIGNATURE,
+      "Content-Type": "application/json"
     },
   });
 
@@ -134,7 +133,7 @@ export const requestWithdraw = async (req, res, next) => {
   try {
     const user = req.user;
     const { amount, bankId, note } = req.body;
-console.log("sdfadsfs")
+
     if (!user?._id) {
       return res.status(401).json({ status: "fail", message: "User not authenticated." });
     }
