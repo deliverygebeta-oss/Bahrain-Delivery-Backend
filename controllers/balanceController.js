@@ -87,7 +87,6 @@ export const sendChapaTransfer = async ({ accountName, accountNumber, amount, ba
  ************************************************************/
 export const getChapaBalanceETB = async () => {
   
- 
   const response = await axios.get("https://api.chapa.co/v1/balances", {
     headers: {
       Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
@@ -115,7 +114,7 @@ export const initWithdraw = async (req, res) => {
     }
 
     const balance = await Balance.calculateTotal(requester.requesterId);
-
+console.log("balance", balance);
     const bankRes = await axios.get("https://api.chapa.co/v1/banks", {
       headers: {
         Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
