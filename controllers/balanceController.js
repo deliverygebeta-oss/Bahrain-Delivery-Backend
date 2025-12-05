@@ -226,7 +226,7 @@ export const requestWithdraw = async (req, res, next) => {
         error: error,
       });
     }
-
+    console.log("chapa response", chapaResponse);
     withdraw.status = TRANSACTION_STATUSES.SUCCESS;
     withdraw.chapaResponse = chapaResponse;
     await withdraw.save();
