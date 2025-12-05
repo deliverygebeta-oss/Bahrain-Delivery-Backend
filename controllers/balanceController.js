@@ -45,26 +45,36 @@ export const getBalance = async (req, res, next) => {
 /************************************************************
  * 2️⃣ CHAPA — SEND TRANSFER
  ************************************************************/
-export const sendChapaTransfer = async ({ accountName, accountNumber, amount, bankCode }) => {
-  const payload = {
-    account_name: accountName,
-    account_number: "0937609277",
-    amount: amount.toString(),
-    currency: "ETB",
-    reference: "REF-" + Date.now(),
-    bank_code: bankCode,
-  };
-console.log("payload", payload);
-  const response = await axios.post("https://api.chapa.co/v1/transfers", payload, {
-    headers: {
-      Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
-      "Content-Type": "application/json"
-    },
-  });
 
-  
+exports.sendChapaTransfer = async ({ accountName, accountNumber, amount, bankCode }) => {
+  try {
+    const payload = {
+      account_name: accountName,
+      account_number: accountNumber,
+      amount: amount.toString(),
+      currency: "ETB",
+      reference: "REF-" + Date.now(),
+      bank_code: bankCode,
+    };
 
-  return response.data;
+    console.log("payload:", payload);
+
+    const response = await axios.post(
+      "https://api.chapa.co/v1/transfers",
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Chapa transfer error:", error.response?.data || error.message);
+    throw error;
+  }
 };
 
 
