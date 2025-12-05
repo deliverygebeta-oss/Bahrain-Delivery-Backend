@@ -368,8 +368,6 @@ export const chapaTransferApproval = async (req, res) => {
       console.error("CHAPA_APPROVAL_SECRET is not set");
       return res.status(500).send("Server configuration error");
     }
-
-    console.log("req.headers", req.headers);
     const receivedSignature = req.headers["chapa-signature"]?.toString().toLowerCase();
 
     if (!receivedSignature) {
@@ -389,6 +387,7 @@ export const chapaTransferApproval = async (req, res) => {
     } else {
       bodyRaw = JSON.stringify(req.body); // fallback, but not safe if parser already ran
     }
+    console.log("bodyRaw", bodyRaw);
 
     // Generate expected signature: HMAC-SHA256 of raw request body using approval secret
     const expectedSignature = crypto
