@@ -206,7 +206,6 @@ export const requestWithdraw = async (req, res, next) => {
       requesterType: requester.requesterType,
       deliveryId: requester.requesterType === REQUESTER_TYPES.Delivery ? requester.requesterId : undefined,
       restaurantId: requester.requesterType === REQUESTER_TYPES.Restaurant ? requester.requesterId : undefined,
-
       originalAmount: Number(amount),
       type: TRANSACTION_TYPES.Withdraw,
       note,
@@ -277,6 +276,7 @@ export const getTransactionHistory = async (req, res) => {
       originalAmount: Number(tx.originalAmount),
       netAmount: Number(tx.netAmount),
       fee: Number(tx.fee),
+      bankId: tx.bankId,
       currency: tx.currency,
       status: tx.status,
       note: tx.note,
