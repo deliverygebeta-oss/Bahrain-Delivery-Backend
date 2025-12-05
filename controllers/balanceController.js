@@ -46,7 +46,7 @@ export const getBalance = async (req, res, next) => {
  * 2️⃣ CHAPA — SEND TRANSFER
  ************************************************************/
 
-exports.sendChapaTransfer = async ({ accountName, accountNumber, amount, bankCode }) => {
+export const sendChapaTransfer = async ({ accountName, accountNumber, amount, bankCode }) => {
   try {
     const payload = {
       account_name: accountName,
