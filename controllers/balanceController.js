@@ -40,12 +40,12 @@ const autoValidateChapaTransfer = async (withdrawId) => {
       return;
     }
 
-    if (!withdraw.chapaResponse?.reference) {
-      console.log("❌ No Chapa reference found on withdraw:", withdrawId);
-      return;
-    }
+    // if (!withdraw.chapaResponse.reference) {
+    //   console.log("❌ No Chapa reference found on withdraw:", withdrawId);
+    //   return;
+    // }
 
-    const reference = withdraw.chapaResponse.data.reference;
+    const reference = withdraw._id.toString();
 
     // Call Chapa verify API
     const response = await axios.get(
