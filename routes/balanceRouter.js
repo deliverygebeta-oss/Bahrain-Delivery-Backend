@@ -5,7 +5,7 @@ import { protect,restrictTo } from "../controllers/authController.js"; // option
 const router = express.Router();
 router.post("/chapa-transfer-approval", chapaTransferApproval);
 // Protect all balance routes
-router.use(protect);
+
 
 // Get current balance
 router.get("/", protect , restrictTo("Delivery_Person","Manager") , getBalance);
@@ -15,7 +15,7 @@ router.post("/withdraw", protect , restrictTo("Delivery_Person","Manager") , req
 
 router.get("/history",protect, restrictTo("Delivery_Person","Manager") , getTransactionHistory );
 
-router.get("/withdraw-history/:requesterType",restrictTo("Admin"), getWithdrawHistory);
+router.get("/withdraw-history/:requesterType",protect,restrictTo("Admin"), getWithdrawHistory);
 
 router.get("/initialize-withdraw", protect , restrictTo("Delivery_Person","Manager") , initWithdraw);
 
