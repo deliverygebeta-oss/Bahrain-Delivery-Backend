@@ -3,123 +3,133 @@ import Restaurant from "../models/restaurantModel.js";
 import { TRANSACTION_STATUSES } from "../models/Transaction.js";
 import axios from "axios";
 import crypto from "crypto";
+
+/************************************************************
+ *  Helper: Get Requester (Delivery or Restaurant)
+ ************************************************************/
+async function getRequester(req) {
+  const user = req.user;
+
+  if (!user?._id) return null;
+
+  if (user.role === "Delivery_Person") {
+    return {
+      requesterId: user._id,
+      requesterType: REQUESTER_TYPES.Delivery,
+    };
+  }
+
+  if (user.role === "Manager") {
+    const restaurant = await Restaurant.findOne({ managerId: user._id });
+    if (!restaurant) return null;
+
+    return {
+      requesterId: restaurant._id,
+      requesterType: REQUESTER_TYPES.Restaurant,
+    };
+  }
+
+  return null;
+}
+
 /************************************************************
  * 1️⃣ GET TOTAL USER BALANCE
  ************************************************************/
 export const getBalance = async (req, res, next) => {
   try {
-    const userId = req.user?._id;
+    const requester = await getRequester(req);
 
-    let requesterId;
-
-
-  
-    if (!userId) {
-      return res.status(401).json({ status: "fail", message: "User not authenticated." });
+    if (!requester) {
+      return res.status(401).json({ status: "fail", message: "Unauthorized user." });
     }
 
-    if (req.user.role === "Delivery_Person") {
-      requesterId = req.user._id;
-    } else if (req.user.role === "Manager") {
-      const restaurant = await Restaurant.findOne({ managerId: req.user._id });
-      if (!restaurant) {
-        return res.status(404).json({ status: "fail", message: "Restaurant not found." });
-      }
-      requesterId = restaurant._id;
-    }
+    const balance = await Balance.calculateTotal(requester.requesterId);
 
-    const balance = await Balance.calculateTotal(requesterId);
-    const amount = parseFloat(balance.toString());
-
-    res.status(200).json({
+    return res.status(200).json({
       status: "success",
-      message: "Total balance retrieved successfully.",
-      data: { amount, currency: "ETB" },
+      message: "Total balance retrieved.",
+      data: { amount: Number(balance), currency: "ETB" },
     });
   } catch (error) {
     next(error);
   }
 };
 
-
 /************************************************************
- * 2️⃣ CHAPA — SEND TRANSFER
+ * 2️⃣ Chapa Transfer Helper
  ************************************************************/
+export const sendChapaTransfer = async ({ accountName, accountNumber, amount, bankCode, reference }) => {
+  const payload = {
+    account_name: accountName,
+    account_number: accountNumber,
+    amount: amount.toString(),
+    currency: "ETB",
+    reference,
+    bank_code: bankCode,
+  };
 
-export const sendChapaTransfer = async ({ accountName, accountNumber, amount, bankCode }) => {
-  try {
-    const payload = {
-      account_name: accountName,
-      account_number: accountNumber,
-      amount: amount.toString(),
-      currency: "ETB",
-      reference: "REF-" + Date.now(),
-      bank_code: bankCode,
-    };
+  const response = await axios.post(
+    "https://api.chapa.co/v1/transfers",
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
-    console.log("payload:", payload);
-
-    const response = await axios.post(
-      "https://api.chapa.co/v1/transfers",
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error("Chapa transfer error:", error.response?.data || error.message);
-    throw error;
-  }
+  return response.data;
 };
 
+/************************************************************
+ * 3️⃣ GET CHAPA BALANCE
+ ************************************************************/
+export const getChapaBalanceETB = async () => {
+  const response = await axios.get("https://api.chapa.co/v1/customer/balance", {
+    headers: {
+      Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+    },
+  });
+
+  const etb = response.data?.data?.find(b => b.currency === "ETB");
+
+  if (!etb) throw new Error("ETB balance not found on Chapa");
+
+  return {
+    available: Number(etb.available_balance || 0),
+    ledger: Number(etb.ledger_balance || 0),
+  };
+};
 
 /************************************************************
- * 3️⃣ INIT WITHDRAW → RETURNS USER BALANCE + BANK LIST
+ * 4️⃣ INIT WITHDRAW → Return User Balance + Banks
  ************************************************************/
 export const initWithdraw = async (req, res) => {
   try {
+    const requester = await getRequester(req);
     const user = req.user;
 
-    if (!user?._id) {
-      return res.status(401).json({ status: "fail", message: "User not authenticated." });
+    if (!requester) {
+      return res.status(401).json({ status: "fail", message: "Unauthorized user." });
     }
 
-    let requesterId;
+    const balance = await Balance.calculateTotal(requester.requesterId);
 
-    if (user.role === "Delivery_Person") {
-      requesterId = user._id;
-    } else if (user.role === "Manager") {
-      const restaurant = await Restaurant.findOne({ managerId: user._id });
-      if (!restaurant) {
-        return res.status(404).json({
-          status: "fail",
-          message: "Restaurant not found for this manager.",
-        });
-      }
-      requesterId = restaurant._id;
-    }
-
-    const balance = await Balance.calculateTotal(requesterId);
-    const availableBalance = parseFloat(balance || 0);
-
-    const response = await axios.get("https://api.chapa.co/v1/banks", {
+    const bankRes = await axios.get("https://api.chapa.co/v1/banks", {
       headers: {
         Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
       },
     });
 
-    const banks = response.data.data;
-    const mobileBanks = banks.filter(bank => [855, 128].includes(bank.id)); // TeleBirr + CBE birr
+    const mobileBanks = bankRes.data.data.filter(
+      bank => [855, 128].includes(bank.id) // Telebirr, CBE Birr
+    );
 
     return res.status(200).json({
       status: "success",
       data: {
-        balance: availableBalance,
+        balance: Number(balance),
         banks: mobileBanks,
         phone: user.phone,
         name: `${user.firstName} ${user.lastName}`,
@@ -135,119 +145,111 @@ export const initWithdraw = async (req, res) => {
   }
 };
 
-
 /************************************************************
- * 4️⃣ REQUEST WITHDRAW → SEND MONEY IMMEDIATELY
+ * 5️⃣ REQUEST WITHDRAW → Money Sent Immediately
  ************************************************************/
 export const requestWithdraw = async (req, res, next) => {
   try {
     const user = req.user;
     const { amount, bankId, note } = req.body;
 
-    if (!user?._id) {
-      return res.status(401).json({ status: "fail", message: "User not authenticated." });
-    }
-
-    if (!amount || isNaN(amount) || amount <= 0) {
+    if (!amount || amount <= 0) {
       return res.status(400).json({ status: "fail", message: "Invalid withdrawal amount." });
     }
 
-    if (!bankId) {
-      return res.status(400).json({ status: "fail", message: "Bank is required." });
+    const requester = await getRequester(req);
+
+    if (!requester) {
+      return res.status(401).json({ status: "fail", message: "Unauthorized user." });
     }
 
     /***********************
-     * Determine requester
+     * 1️⃣ Check Internal Balance
      ***********************/
-    let requesterId;
-    let requesterType;
+    const internalBalance = await Balance.calculateTotal(requester.requesterId);
 
-    if (user.role === "Delivery_Person") {
-      requesterId = user._id;
-      requesterType = REQUESTER_TYPES.Delivery;
-    } else if (user.role === "Manager") {
-      const restaurant = await Restaurant.findOne({ managerId: user._id });
-      if (!restaurant) {
-        return res.status(404).json({ status: "fail", message: "Restaurant not found." });
-      }
-      requesterId = restaurant._id;
-      requesterType = REQUESTER_TYPES.Restaurant;
+    if (internalBalance < amount) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Insufficient system balance.",
+      });
     }
 
     /***********************
-     * Check balance
+     * 2️⃣ Check Chapa Balance
      ***********************/
-    const balance = await Balance.calculateTotal(requesterId);
-    const availableBalance = parseFloat(balance || 0);
+    const chapaBalance = await getChapaBalanceETB();
 
-    if (availableBalance < amount) {
-      return res.status(400).json({ status: "fail", message: "Insufficient balance." });
+    if (chapaBalance.available < amount) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Chapa ETB balance too low.",
+        chapaAvailable: chapaBalance.available,
+      });
     }
 
     /***********************
-     * Auto-filled values
+     * 3️⃣ Normalize Phone
      ***********************/
-    // Remove country code (+251) and ensure leading '09...' for the account number
-    let accountNumber = user.phone;
-    if (accountNumber.startsWith('+251')) {
-      accountNumber = accountNumber.replace('+251', '');
-      if (accountNumber.length === 9 && accountNumber.startsWith('9')) {
-        accountNumber = '0' + accountNumber;
-      }
+    let accNumber = user.phone.replace("+251", "");
+    if (accNumber.startsWith("9") && accNumber.length === 9) {
+      accNumber = "0" + accNumber;
     }
-    
-    const accountName = `${user.firstName} ${user.lastName}`;
+
+    const accName = `${user.firstName} ${user.lastName}`;
 
     /***********************
-     * Save transaction first
+     * 4️⃣ Create Withdrawal Record (PENDING)
      ***********************/
-    let withdraw = await Balance.create({
-      requesterType,
-      restaurantId: requesterType === REQUESTER_TYPES.Restaurant ? requesterId : undefined,
-      deliveryId: requesterType === REQUESTER_TYPES.Delivery ? requesterId : undefined,
-      amount,
+    const withdrawal = await Balance.create({
+      requesterType: requester.requesterType,
+      deliveryId: requester.requesterType === REQUESTER_TYPES.Delivery ? requester.requesterId : undefined,
+      restaurantId: requester.requesterType === REQUESTER_TYPES.Restaurant ? requester.requesterId : undefined,
+
+      originalAmount: Number(amount),
       type: TRANSACTION_TYPES.Withdraw,
       note,
-      status: TRANSACTION_STATUSES.PROCESSING,
       bankId,
-      accountName,
-      accountNumber,
+      accountName: accName,
+      accountNumber: accNumber,
+      status: TRANSACTION_STATUSES.PENDING,
     });
 
     /***********************
-     * CHAPA PAYOUT
+     * 5️⃣ Send Transfer
      ***********************/
-    let chapaResponse;
+    let transferRes;
 
     try {
-      chapaResponse = await sendChapaTransfer({
-        accountName,
-        accountNumber,
+      transferRes = await sendChapaTransfer({
+        accountName: accName,
+        accountNumber: accNumber,
         amount,
         bankCode: bankId,
+        reference: withdrawal._id.toString(),
       });
-    } catch (error) {
-      withdraw.status = TRANSACTION_STATUSES.FAILED;
-      await withdraw.save();
+    } catch (err) {
+      withdrawal.status = TRANSACTION_STATUSES.FAILED;
+      await withdrawal.save();
 
       return res.status(500).json({
         status: "fail",
         message: "Chapa payout failed.",
-        error: error,
+        error: err.response?.data || err.message,
       });
     }
-    console.log("chapa response", chapaResponse);
-    withdraw.status = TRANSACTION_STATUSES.SUCCESS;
-    withdraw.chapaResponse = chapaResponse;
-    await withdraw.save();
+
+    withdrawal.status = TRANSACTION_STATUSES.PROCESSING;
+    withdrawal.chapaResponse = transferRes;
+    await withdrawal.save();
 
     return res.status(200).json({
       status: "success",
-      message: "Withdrawal successful!",
+      message: "Withdrawal initiated.",
       data: {
-        withdraw,
-        remainingBalance: availableBalance - amount,
-        chapa: chapaResponse,
+        withdrawal,
+        remainingBalance: Number(internalBalance) - Number(amount),
+        chapaResponse: transferRes,
       },
     });
   } catch (error) {
@@ -255,172 +257,129 @@ export const requestWithdraw = async (req, res, next) => {
   }
 };
 
-
 /************************************************************
- * 5️⃣ USER TRANSACTION HISTORY
+ * 6️⃣ USER TRANSACTION HISTORY
  ************************************************************/
 export const getTransactionHistory = async (req, res) => {
   try {
-    const user = req.user;
+    const requester = await getRequester(req);
 
-    let requesterId;
-    let requesterType;
-
-    if (user.role === "Delivery_Person") {
-      requesterId = user._id;
-      requesterType = REQUESTER_TYPES.Delivery;
-    } else if (user.role === "Manager") {
-      const restaurant = await Restaurant.findOne({ managerId: user._id });
-      if (!restaurant) {
-        return res.status(404).json({ status: "fail", message: "No restaurant found" });
-      }
-      requesterId = restaurant._id;
-      requesterType = REQUESTER_TYPES.Restaurant;
-    } else {
-      return res.status(403).json({ status: "fail", message: "Unauthorized role" });
+    if (!requester) {
+      return res.status(401).json({ status: "fail", message: "Unauthorized user." });
     }
 
-    const transactions = await Balance.getTransactionsWithRunningBalance(requesterId);
+    const transactions = await Balance.getTransactionsWithRunningBalance(requester.requesterId);
 
-    const formattedTransactions = transactions.map(tx => ({
+    const formatted = transactions.map(tx => ({
       id: tx._id,
       type: tx.type,
-      amount: parseFloat(tx.amount.toString()),
+      originalAmount: Number(tx.originalAmount),
+      netAmount: Number(tx.netAmount),
+      fee: Number(tx.fee),
       currency: tx.currency,
       status: tx.status,
       note: tx.note,
       createdAt: tx.createdAt,
-      currentBalance: parseFloat(tx.currentBalance?.toString() || "0"),
+      currentBalance: Number(tx.currentBalance || 0),
     }));
 
-    const totalBalance = await Balance.calculateTotal(requesterId);
+    const totalBalance = await Balance.calculateTotal(requester.requesterId);
 
-    res.status(200).json({
+    return res.status(200).json({
       status: "success",
-      requesterType,
-      totalBalance: parseFloat(totalBalance?.toString() || "0"),
-      transactions: formattedTransactions,
+      totalBalance: Number(totalBalance),
+      transactions: formatted,
     });
   } catch (error) {
-    console.error("Error fetching transaction history:", error);
-    res.status(500).json({
+    return res.status(500).json({
       status: "error",
-      message: "Something went wrong while fetching history",
+      message: "Failed to fetch history",
     });
   }
 };
 
-
 /************************************************************
- * 6️⃣ WITHDRAW HISTORY (ADMIN SIDE)
+ * 7️⃣ ADMIN WITHDRAW HISTORY
  ************************************************************/
 export const getWithdrawHistory = async (req, res) => {
   try {
     const requesterType = req.params.requesterType;
-    const { type = "Withdraw", status } = req.query;
 
     if (!Object.values(REQUESTER_TYPES).includes(requesterType)) {
-      return res.status(400).json({ status: "fail", message: "Invalid requester type" });
+      return res.status(400).json({ status: "fail", message: "Invalid requester type." });
     }
 
-    const query = { requesterType, type };
-    if (status) query.status = status;
+    const query = { requesterType, type: TRANSACTION_TYPES.Withdraw };
 
-    let historyQuery;
+    if (req.query.status) query.status = req.query.status;
+
+    let historyQuery = Balance.find(query).sort({ createdAt: -1 });
 
     if (requesterType === REQUESTER_TYPES.Delivery) {
-      historyQuery = Balance.find(query)
-        .populate("deliveryId", "firstName lastName phone role")
-        .sort({ createdAt: -1 });
+      historyQuery = historyQuery.populate("deliveryId", "firstName lastName phone");
     } else {
-      historyQuery = Balance.find(query)
-        .populate("restaurantId", "name phone")
-        .sort({ createdAt: -1 });
+      historyQuery = historyQuery.populate("restaurantId", "name phone");
     }
 
-    const history = await historyQuery;
+    const results = await historyQuery;
 
-    const formatted = history.map(item => ({
-      _id: item._id,
-      requesterType: item.requesterType,
-      deliveryId: item.deliveryId,
-      restaurantId: item.restaurantId,
-      amount: item.amount,
-      type: item.type,
-      note: item.note,
-      status: item.status,
-      createdAt: item.createdAt,
-      bankId: item.bankId,
+    const formatted = results.map(tx => ({
+      id: tx._id,
+      requesterType,
+      originalAmount: Number(tx.originalAmount),
+      netAmount: Number(tx.netAmount),
+      fee: Number(tx.fee),
+      bankId: tx.bankId,
+      status: tx.status,
+      note: tx.note,
+      createdAt: tx.createdAt,
+      deliveryId: tx.deliveryId,
+      restaurantId: tx.restaurantId,
     }));
 
     return res.status(200).json({
       status: "success",
-      results: formatted.length,
+      count: formatted.length,
       data: formatted,
     });
   } catch (error) {
-    console.error("Error fetching withdraw history:", error);
     return res.status(500).json({
       status: "error",
       message: "Something went wrong",
-      error: error.message,
     });
   }
 };
 
-
+/************************************************************
+ * 8️⃣ CHAPA WEBHOOK (FINAL APPROVAL)
+ ************************************************************/
 export const chapaTransferApproval = async (req, res) => {
   try {
-    const approvalSecret = process.env.CHAPA_SIGNATURE;
+    const secret = process.env.CHAPA_SIGNATURE;
 
-    if (!approvalSecret) {
-      console.error("CHAPA_SIGNATURE is not set in environment variables");
-      return res.status(500).send("Server configuration error");
-    }
+    const receivedSig = req.headers["chapa-signature"];
+    if (!receivedSig) return res.status(400).send("Missing signature");
 
-    // 1️⃣ Get Chapa signature from header
-    const receivedSignature = req.headers["chapa-signature"];
-
-    if (!receivedSignature) {
-      console.log("Missing Chapa-Signature header");
-      return res.status(400).send("Missing signature");
-    }
-
-    // 2️⃣ Generate expected signature: HMAC_SHA256(secret, secret)
-    const expectedSignature = crypto
-      .createHmac("sha256", approvalSecret)
-      .update(approvalSecret)
+    const expected = crypto
+      .createHmac("sha256", secret)
+      .update(secret)
       .digest("hex")
       .toLowerCase();
 
-    console.log("Received:", receivedSignature);
-    console.log("Expected:", expectedSignature);
-
-    // 3️⃣ Compare signatures (secure comparison)
-    if (
-      !crypto.timingSafeEqual(
-        Buffer.from(receivedSignature.toLowerCase()),
-        Buffer.from(expectedSignature)
-      )
-    ) {
-      console.log("Signature mismatch → Transfer REJECTED");
+    if (receivedSig.toLowerCase() !== expected) {
       return res.status(400).send("Invalid signature");
     }
 
-    // 4️⃣ Signature valid → Approve transfer
-    console.log("Signature valid → Transfer APPROVED");
-    console.log("Transfer Data:", req.body);
+    const { reference } = req.body;
+    const withdraw = await Balance.findById(reference);
 
-    // Optional: Add internal business validation here
-    // - verify reference exists in your DB
-    // - validate amount limits
-    // - fraud checks, etc.
+    if (!withdraw) return res.status(400).send("Withdraw record not found");
+
+    withdraw.status = TRANSACTION_STATUSES.SUCCESS;
+    await withdraw.save();
 
     return res.status(200).send("Approved");
-
   } catch (err) {
-    console.error("Error in Chapa Transfer Approval:", err);
     return res.status(500).send("Internal server error");
   }
 };
-//export default chapaTransferApproval;

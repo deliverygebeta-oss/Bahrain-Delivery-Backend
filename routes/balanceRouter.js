@@ -1,25 +1,67 @@
 import express from "express";
-import { getBalance, requestWithdraw, getTransactionHistory  ,getWithdrawHistory ,initWithdraw ,chapaTransferApproval} from "../controllers/balanceController.js";
-import { protect,restrictTo } from "../controllers/authController.js"; // optional, if you have authentication
+import {
+  getBalance,
+  requestWithdraw,
+  getTransactionHistory,
+  getWithdrawHistory,
+  initWithdraw,
+  chapaTransferApproval,
+} from "../controllers/balanceController.js";
+
+import { protect, restrictTo } from "../controllers/authController.js";
 
 const router = express.Router();
-router.post("/chapa-transfer-approval", chapaTransferApproval);
-// Protect all balance routes
 
+/************************************************************
+ * 1️⃣ PUBLIC WEBHOOK (NO AUTH)
+ * Chapa servers CANNOT send JWT — must stay public.
+ ************************************************************/
+router.post("/chapa-transfer-approval", chapaTransferApproval);
+
+/************************************************************
+ * 2️⃣ PROTECTED BALANCE ROUTES
+ ************************************************************/
+router.use(protect);  // All below require authentication
+
+/************************************************************
+ * 3️⃣ Delivery + Restaurant Only
+ ************************************************************/
 
 // Get current balance
-router.get("/", protect , restrictTo("Delivery_Person","Manager") , getBalance);
+router.get(
+  "/",
+  restrictTo("Delivery_Person", "Manager"),
+  getBalance
+);
 
-// Request a withdrawal
-router.post("/withdraw", protect , restrictTo("Delivery_Person","Manager") , requestWithdraw);
+// Initialize withdraw (banks + user info + balance)
+router.get(
+  "/initialize-withdraw",
+  restrictTo("Delivery_Person", "Manager"),
+  initWithdraw
+);
 
-router.get("/history",protect, restrictTo("Delivery_Person","Manager") , getTransactionHistory );
+// Request withdrawal
+router.post(
+  "/withdraw",
+  restrictTo("Delivery_Person", "Manager"),
+  requestWithdraw
+);
 
-router.get("/withdraw-history/:requesterType",protect,restrictTo("Admin"), getWithdrawHistory);
+// Transaction history
+router.get(
+  "/history",
+  restrictTo("Delivery_Person", "Manager"),
+  getTransactionHistory
+);
 
-router.get("/initialize-withdraw", protect , restrictTo("Delivery_Person","Manager") , initWithdraw);
-
-
-
+/************************************************************
+ * 4️⃣ ADMIN ONLY ROUTES
+ ************************************************************/
+router.get(
+  "/withdraw-history/:requesterType",
+  restrictTo("Admin"),
+  getWithdrawHistory
+);
 
 export default router;

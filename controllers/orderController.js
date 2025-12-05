@@ -473,7 +473,7 @@ export const pickUpOrder = async (req, res, next) => {
   try {
     const { orderId, pickupVerificationCode } = req.body;
 
-    // Step 1: Validate input
+    // Step 1: Validate inputs
     if (!orderId?.trim() || !pickupVerificationCode?.trim()) {
       await session.abortTransaction();
       session.endSession();
@@ -492,7 +492,7 @@ export const pickUpOrder = async (req, res, next) => {
       });
     }
 
-    // Step 2: Find order (lock for update)
+    // Step 2: Fetch order in Cooked state
     const order = await Order.findOne({
       _id: orderId,
       orderStatus: ORDER_STATUSES.Cooked,
@@ -506,7 +506,8 @@ export const pickUpOrder = async (req, res, next) => {
         message: "No cooked order found with the given ID.",
       });
     }
-    // Step 3: Verify the pickup code
+
+    // Step 3: Verify pickup code
     let isVerified = false;
 
     if (order.typeOfOrder === ORDER_TYPES.Delivery) {
@@ -514,20 +515,16 @@ export const pickUpOrder = async (req, res, next) => {
         isVerified = true;
         order.orderStatus = ORDER_STATUSES.Delivering;
       }
-    } 
-    
-    else if (
+    } else if (
       order.typeOfOrder === ORDER_TYPES.Takeaway ||
       order.typeOfOrder === ORDER_TYPES.DineIn
-    ) 
-    {
+    ) {
       if (order.userVerificationCode === pickupVerificationCode) {
         isVerified = true;
         order.orderStatus = ORDER_STATUSES.Completed;
       }
     }
 
-    // Step 4: If verification fails, abort
     if (!isVerified) {
       await session.abortTransaction();
       session.endSession();
@@ -537,41 +534,44 @@ export const pickUpOrder = async (req, res, next) => {
       });
     }
 
-    // Step 5: Save updated order
+    // Step 4: Save updated order
     await order.save({ session });
 
-    // ✅ Step 6: Create restaurant balance (only after verification success)
-    const newBalance = await Balance.create(
+    // Step 5: Register Restaurant Deposit
+    // Using new schema fields: originalAmount, netAmount auto-calculated
+    await Balance.create(
       [
         {
           requesterType: REQUESTER_TYPES.Restaurant,
           restaurantId: order.restaurantId,
-          amount: order.foodTotal,
-          status:TRANSACTION_STATUSES.PAID,
+          originalAmount: order.foodTotal,     // original amount
           type: TRANSACTION_TYPES.Deposit,
-          note: `Deposit for order ${order._id}`,
+          status: TRANSACTION_STATUSES.APPROVED, // approved instantly
+          note: `Deposit for completed order ${order._id}`,
         },
       ],
       { session }
     );
 
-    // Step 7: Recalculate restaurant total balance
+    // Step 6: Calculate new total balance for restaurant
     const totalBalance = await Balance.calculateTotal(order.restaurantId);
 
-    // Step 8: Commit transaction
+    // Step 7: Commit transaction
     await session.commitTransaction();
     session.endSession();
 
-    // Step 9: Respond success
+    // Step 8: Respond success
     return res.status(200).json({
       status: "success",
-      message: `Order ${order._id} verified successfully. Restaurant balance updated.`,
-      
+      message: `Order ${order._id} picked up and restaurant credited.`,
+      orderStatus: order.orderStatus,
+      newBalance: totalBalance,
     });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
     console.error("🚨 Pickup Order Error:", error);
+
     next({
       statusCode: 500,
       message: "An unexpected error occurred while processing pickup.",
@@ -579,6 +579,7 @@ export const pickUpOrder = async (req, res, next) => {
     });
   }
 };
+
 export const verifyOrderDelivery = async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -587,7 +588,7 @@ export const verifyOrderDelivery = async (req, res, next) => {
     const { order_id, verification_code } = req.body;
     const deliveryPersonId = req.user?._id;
 
-    // 🔹 Validate input
+    // Validate input
     if (!order_id || !verification_code) {
       await session.abortTransaction();
       session.endSession();
@@ -608,7 +609,7 @@ export const verifyOrderDelivery = async (req, res, next) => {
 
     console.log(`🚚 Verifying delivery for order: ${order_id} by ${deliveryPersonId}`);
 
-    // 🔹 Find the order that belongs to this delivery person and is still delivering
+    // Find delivering order assigned to this delivery person
     const order = await Order.findOne({
       _id: order_id,
       deliveryId: deliveryPersonId,
@@ -624,7 +625,7 @@ export const verifyOrderDelivery = async (req, res, next) => {
       });
     }
 
-    // 🔹 Verify the code
+    // Verify user code
     if (String(order.userVerificationCode) !== String(verification_code)) {
       await session.abortTransaction();
       session.endSession();
@@ -634,61 +635,63 @@ export const verifyOrderDelivery = async (req, res, next) => {
       });
     }
 
-    // 🔹 Mark order as completed
+    // Mark order as completed
     order.orderStatus = ORDER_STATUSES.Completed;
     await order.save({ session });
-   const delId = deliveryPersonId.toString();
-if (activeDeliveryOrders.has(delId)) {
-  activeDeliveryOrders.delete(delId);
-  console.log(`🟢 Removed active order for deliveryId ${delId} after completion`);
-}
-    // 🔹 Record delivery earning (Deposit)
-    const deliveryBalance = await Balance.create(
+
+    // Remove from active delivery order cache
+    const delId = deliveryPersonId.toString();
+    if (activeDeliveryOrders.has(delId)) {
+      activeDeliveryOrders.delete(delId);
+      console.log(`🟢 Removed active order for deliveryId ${delId} after completion`);
+    }
+
+    // DELIVERY FEE EARNING: Create new Balance record
+    const deliveryFeeAmount = Number(order.deliveryFee || 0);
+
+    const newBalanceRecord = await Balance.create(
       [
         {
           requesterType: REQUESTER_TYPES.Delivery,
           deliveryId: deliveryPersonId,
-          amount: mongoose.Types.Decimal128.fromString(
-            (order.deliveryFee || 0).toString()
-          ),
+
+          // NEW SCHEMA: must use originalAmount
+          originalAmount: deliveryFeeAmount,
+
           type: TRANSACTION_TYPES.Deposit,
+          status: TRANSACTION_STATUSES.APPROVED,
           note: `Delivery payment for order ${order._id}`,
-          status:TRANSACTION_STATUSES.PAID,
         },
       ],
       { session }
     );
 
-    // 🔹 Recalculate total balance for this delivery person
+    // Recalculate delivery person balance
     const totalBalance = await Balance.calculateTotal(deliveryPersonId);
 
-    // 🔹 Try to remove the order from Firebase (non-blocking)
-    try {
-      await remove(ref(database, `deliveryOrders/${order._id.toString()}`));
-    } catch (firebaseError) {
-      console.warn("⚠️ Firebase removal failed:", firebaseError.message);
-    }
-
-    // 🔹 Commit transaction
+    
+    // Commit transaction
     await session.commitTransaction();
     session.endSession();
 
-    // 🔹 Send response
+    // Final response
     return res.status(200).json({
       status: "success",
-      message: "Order delivery verified successfully and balance updated.",
+      message: "Order delivered and earnings added.",
       data: {
         orderId: order._id,
         deliveryPersonId,
-        deliveryEarnings: Number(order.deliveryFee || 0),
+        deliveryEarnings: deliveryFeeAmount,
         currentBalance: Number(totalBalance || 0),
-        newBalanceRecord: deliveryBalance[0],
+        newBalanceRecord: newBalanceRecord[0],
       },
     });
+
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
     console.error("❌ Error verifying order delivery:", error.message);
+
     next({
       statusCode: 500,
       message: "An unexpected error occurred while verifying order delivery.",
@@ -696,6 +699,7 @@ if (activeDeliveryOrders.has(delId)) {
     });
   }
 };
+
 export const getOrdersByRestaurantId = async (req, res, next) => {
   try {
     const { restaurantId } = req.params;

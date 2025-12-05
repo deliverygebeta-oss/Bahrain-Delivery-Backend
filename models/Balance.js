@@ -66,7 +66,10 @@ const balanceSchema = new mongoose.Schema(
       enum: Object.values(TRANSACTION_STATUSES),
       default: TRANSACTION_STATUSES.PENDING,
     },
-
+    chapaResponse: {
+      type: Object,
+      default: null,
+    },
     fee: {
       type: mongoose.Schema.Types.Decimal128,
       default: 0, // Store the deducted amount
@@ -119,6 +122,7 @@ balanceSchema.statics.calculateTotal = async function (requesterId) {
           { deliveryId: requesterId },
           { restaurantId: requesterId },
         ],
+        status: { $in: [TRANSACTION_STATUSES.APPROVED, TRANSACTION_STATUSES.SUCCESS] }
       },
     },
     {
@@ -128,9 +132,9 @@ balanceSchema.statics.calculateTotal = async function (requesterId) {
           $sum: {
             $cond: [
               { $eq: ["$type", TRANSACTION_TYPES.Deposit] },
-              "$amount",
-              { $multiply: ["$amount", -1] },
-            ],
+              "$netAmount",
+              { $multiply: ["$netAmount", -1] }
+            ]
           },
         },
       },
@@ -139,6 +143,7 @@ balanceSchema.statics.calculateTotal = async function (requesterId) {
 
   return result.length > 0 ? result[0].total : 0;
 };
+
 
 // Static method to get transactions with running balance using aggregation
 balanceSchema.statics.getTransactionsWithRunningBalance = async function (requesterId) {
