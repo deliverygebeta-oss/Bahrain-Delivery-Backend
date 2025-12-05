@@ -145,7 +145,7 @@ balanceSchema.statics.calculateTotal = async function (requesterId) {
           { deliveryId: requesterId },
           { restaurantId: requesterId }
         ],
-        status: { $in: [TRANSACTION_STATUSES.APPROVED, TRANSACTION_STATUSES.SUCCESS] }
+        status: { $in: [TRANSACTION_STATUSES.APPROVED,TRANSACTION_STATUSES.PROCESSING, TRANSACTION_STATUSES.SUCCESS], }
       },
     },
     {

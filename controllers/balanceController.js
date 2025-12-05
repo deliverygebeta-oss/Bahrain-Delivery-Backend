@@ -86,16 +86,16 @@ export const sendChapaTransfer = async ({ accountName, accountNumber, amount, ba
  * 3️⃣ GET CHAPA BALANCE
  ************************************************************/
 export const getChapaBalanceETB = async () => {
-  const response = await axios.get("https://api.chapa.co/v1/customer/balance", {
+  
+ 
+  const response = await axios.get("https://api.chapa.co/v1/balances", {
     headers: {
       Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
     },
   });
-
   const etb = response.data?.data?.find(b => b.currency === "ETB");
 
   if (!etb) throw new Error("ETB balance not found on Chapa");
-
   return {
     available: Number(etb.available_balance || 0),
     ledger: Number(etb.ledger_balance || 0),
@@ -177,9 +177,11 @@ export const requestWithdraw = async (req, res, next) => {
 
     /***********************
      * 2️⃣ Check Chapa Balance
+     *
      ***********************/
-    const chapaBalance = await getChapaBalanceETB();
 
+    const chapaBalance = await getChapaBalanceETB();
+   
     if (chapaBalance.available < amount) {
       return res.status(400).json({
         status: "fail",
