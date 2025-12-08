@@ -71,7 +71,7 @@ const autoValidateChapaTransfer = async (withdrawId) => {
     // Update DB
     if (chapaStatus === "success") {
       withdraw.status = "SUCCESS";
-    } else if (chapaStatus === "failed") {
+    } else if (chapaStatus === "failed/cancelled") {
       withdraw.status = "FAILED";
     } else {
       withdraw.status = "PENDING";
