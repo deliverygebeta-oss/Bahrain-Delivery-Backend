@@ -178,16 +178,19 @@ export const signup = [
 export const verifySignupOTP = [
   body('phone').notEmpty().withMessage('Phone number is required'),
   body('code').notEmpty().withMessage('OTP code is required'),
-  body('password').notEmpty().withMessage('Password is required')(),
-  body('passwordConfirm').notEmpty().withMessage('Password Confirm is required')(),
+  body('password').notEmpty().withMessage('Password is required'),
+  body('passwordConfirm').notEmpty().withMessage('Password Confirm is required'),
   body('verificationId').optional(),
+
   catchAsync(async (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return next(new AppError(errors.array()[0].msg, 400));
+    if (!errors.isEmpty())
+      return next(new AppError(errors.array()[0].msg, 400));
 
-    const { phone, code, verificationId,password,passwordConfirm } = req.body;
+    const { phone, code, verificationId, password, passwordConfirm } = req.body;
     const normalizedPhone = normalizePhone(phone);
 
+    // Verify OTP
     const result = await afroMessageService.verifyOTP(
       code,
       normalizedPhone,
@@ -198,20 +201,20 @@ export const verifySignupOTP = [
       return next(new AppError(result.error || 'OTP invalid or expired', 400));
     }
 
-    
-    // New user - use OTP code as initial password
+    // Create new user
     const user = await User.create({
       phone: normalizedPhone,
-      password: password,          // Use OTP as initial password
-      passwordConfirm: passwordConfirm,   // Confirm with same OTP
+      password,
+      passwordConfirm,
       isPhoneVerified: true,
       role: 'Customer',
-      requirePasswordChange: true  // Flag to force password change
+      requirePasswordChange: true
     });
 
     createSendToken(user, 201, res);
-  }),
+  })
 ];
+
 
 // 🔑 5. Login
 export const login = [
