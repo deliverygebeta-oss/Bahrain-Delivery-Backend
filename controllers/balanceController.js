@@ -58,7 +58,7 @@ const autoValidateChapaTransfer = async (withdrawId) => {
     );
 
     const result = response.data;
-
+    
     if (result.status !== "success") {
       console.log("❌ Transfer still pending or failed:", reference);
       return;
@@ -70,11 +70,11 @@ const autoValidateChapaTransfer = async (withdrawId) => {
 
     // Update DB
     if (chapaStatus === "success") {
-      withdraw.status = "SUCCESS";
+      withdraw.status = TRANSACTION_STATUSES.SUCCESS;
     } else if (chapaStatus === "failed/cancelled") {
-      withdraw.status = "FAILED";
+      withdraw.status =TRANSACTION_STATUSES.FAILED;
     } else {
-      withdraw.status = "PENDING";
+      withdraw.status = TRANSACTION_STATUSES.PROCESSING;
     }
 
     await withdraw.save();
@@ -292,7 +292,9 @@ export const requestWithdraw = async (req, res, next) => {
       });
     }
 
-    withdrawal.status = TRANSACTION_STATUSES.PROCESSING;
+    console.log("Chapa transfer response:", transferRes);
+
+    withdrawal.status = TRANSACTION_STATUSES.PENDING;
     withdrawal.chapaResponse = transferRes;
     await withdrawal.save();
 
