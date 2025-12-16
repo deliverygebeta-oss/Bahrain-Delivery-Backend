@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Request account deletion for Bahiran Delivery Driver App">
+    <title>Delete Account - Bahiran Delivery</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0D9488;
+            --primary-dark: #0F766E;
+            --danger: #EF4444;
+            --danger-dark: #DC2626;
+            --bg-dark: #0F172A;
+            --bg-card: #1E293B;
+            --bg-elevated: #334155;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border: #334155;
+            --success: #10B981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(239, 68, 68, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(13, 148, 136, 0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .app-name {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-card);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Info Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-warning {
+            border-left: 4px solid var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .card-info {
+            border-left: 4px solid var(--primary);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .card ul {
+            padding-left: 1.25rem;
+        }
+
+        .card li {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .card li strong {
+            color: var(--text-primary);
+        }
+
+        /* Steps */
+        .steps {
+            margin: 2rem 0;
+        }
+
+        .steps h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Data Tables */
+        .data-section {
+            margin: 2rem 0;
+        }
+
+        .data-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background: var(--bg-elevated);
+            font-weight: 600;
+        }
+
+        .data-table td {
+            color: var(--text-secondary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-deleted {
+            background: rgba(239, 68, 68, 0.2);
+            color: #F87171;
+        }
+
+        .badge-retained {
+            background: rgba(245, 158, 11, 0.2);
+            color: #FBBF24;
+        }
+
+        /* Form */
+        .form-section {
+            margin: 3rem 0;
+        }
+
+        .form-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-section > p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 0.25rem;
+            accent-color: var(--danger);
+        }
+
+        .checkbox-group label {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 16px;
+            margin-top: 1.5rem;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-message h3 {
+            color: var(--success);
+            margin-bottom: 0.5rem;
+        }
+
+        .success-message p {
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+
+        .footer p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="app-name">🚗 Bahiran Delivery</div>
+            <div class="header-icon">🗑️</div>
+            <h1>Delete Your Account</h1>
+            <p>Request permanent deletion of your Bahiran Delivery account and data</p>
+        </header>
+
+        <!-- Warning Card -->
+        <div class="card card-warning">
+            <div class="card-title">⚠️ Important Warning</div>
+            <p style="color: var(--text-secondary);">Account deletion is <strong>permanent and irreversible</strong>. Once deleted:</p>
+            <ul>
+                <li>You will lose access to your account immediately</li>
+                <li>Your earnings history will be permanently deleted</li>
+                <li>You cannot recover your account or data</li>
+                <li>You will need to create a new account to use our services again</li>
+            </ul>
+        </div>
+
+        <!-- Steps Section -->
+        <section class="steps">
+            <h2>📋 How to Delete Your Account</h2>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Submit Deletion Request</h3>
+                    <p>Fill out the form below with your registered phone number and email address.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Verify Your Identity</h3>
+                    <p>We'll send a verification code to your registered phone number to confirm your identity.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Processing Period</h3>
+                    <p>Your request will be processed within 30 days. You'll receive confirmation via email.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Account Deleted</h3>
+                    <p>Once processed, your account and associated data will be permanently deleted.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Section -->
+        <section class="data-section">
+            <h2>📊 What Happens to Your Data</h2>
+            
+            <div class="card card-info">
+                <div class="card-title">ℹ️ Data Handling</div>
+                <p style="color: var(--text-secondary);">Upon account deletion, we handle your data according to our privacy policy and legal requirements:</p>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Data Type</th>
+                        <th>Action</th>
+                        <th>Timeframe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Personal Information</strong><br><small>Name, phone, email, photo</small></td>
+                        <td><span class="badge badge-deleted">Deleted</span></td>
+                        <td>Within 30 days</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Location Data</strong><br><small>GPS history, routes</small></td>
+                        <td><span class="badge badge-deleted">Deleted</span></td>
+                        <td>Within 30 days</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Order History</strong><br><small>Delivery records</small></td>
+                        <td><span class="badge badge-deleted">Deleted</span></td>
+                        <td>Within 30 days</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Financial Records</strong><br><small>Earnings, withdrawals</small></td>
+                        <td><span class="badge badge-retained">Retained</span></td>
+                        <td>7 years (legal)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tax Documents</strong><br><small>Payment reports</small></td>
+                        <td><span class="badge badge-retained">Retained</span></td>
+                        <td>7 years (legal)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="card" style="margin-top: 1rem;">
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                    <strong>Note:</strong> Some data may be retained for legal compliance, fraud prevention, or to resolve disputes. 
+                    Retained data is anonymized where possible and kept secure. See our 
+                    <a href="/privacy-policy" style="color: var(--primary);">Privacy Policy</a> for details.
+                </p>
+            </div>
+        </section>
+
+        <!-- Deletion Form -->
+        <section class="form-section">
+            <h2>📝 Request Account Deletion</h2>
+            <p>Please provide your account details to submit a deletion request.</p>
+
+            <form id="deletionForm">
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+251 9XX XXX XXX" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="reason">Reason for Deletion</label>
+                    <select id="reason" name="reason">
+                        <option value="">Select a reason (optional)</option>
+                        <option value="no-longer-using">No longer using the service</option>
+                        <option value="privacy-concerns">Privacy concerns</option>
+                        <option value="switching-platform">Switching to another platform</option>
+                        <option value="too-many-notifications">Too many notifications</option>
+                        <option value="poor-experience">Poor experience</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedback">Additional Feedback (Optional)</label>
+                    <textarea id="feedback" name="feedback" placeholder="Help us improve by sharing your feedback..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="confirm" name="confirm" required>
+                        <label for="confirm">
+                            I understand that account deletion is <strong>permanent and irreversible</strong>. 
+                            All my data will be deleted and cannot be recovered.
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🗑️ Submit Deletion Request
+                </button>
+            </form>
+
+            <div class="success-message" id="successMessage">
+                <div class="success-icon">✅</div>
+                <h3>Request Submitted Successfully!</h3>
+                <p>We've received your account deletion request. You'll receive a verification code shortly to confirm your identity. Your request will be processed within 30 days.</p>
+            </div>
+        </section>
+
+        <!-- Contact -->
+        <div class="card">
+            <div class="card-title">📞 Need Help?</div>
+            <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                If you have questions or need assistance with your deletion request:
+            </p>
+            <ul>
+                <li>Email: <a href="mailto:privacy@bahirandelivery.com" style="color: var(--primary);">privacy@bahirandelivery.com</a></li>
+                <li>Phone: <a href="tel:+251919444499" style="color: var(--primary);">+251 919 444 499</a></li>
+                <li>In-App: Profile → Settings → Delete Account</li>
+            </ul>
+        </div>
+
+        <footer class="footer">
+            <p><strong>Bahiran Delivery</strong> • Addis Ababa, Ethiopia</p>
+            <p>© 2025 Bahiran Delivery. All rights reserved.</p>
+            <p style="margin-top: 1rem;">
+                <a href="/privacy-policy">Privacy Policy</a> • 
+                <a href="/">Home</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const form = document.getElementById('deletionForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const successMessage = document.getElementById('successMessage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Submitting...';
+
+            const formData = {
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                reason: document.getElementById('reason').value,
+                feedback: document.getElementById('feedback').value
+            };
+
+            try {
+                const response = await fetch('/api/v1/users/request-deletion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    form.style.display = 'none';
+                    successMessage.classList.add('show');
+                } else {
+                    alert(data.message || 'Something went wrong. Please try again.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🗑️ Submit Deletion Request';
+                }
+            } catch (error) {
+                alert('Network error. Please check your connection and try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🗑️ Submit Deletion Request';
+            }
+        });
+    </script>
+</body>
+</html>
+

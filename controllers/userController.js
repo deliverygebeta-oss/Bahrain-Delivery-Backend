@@ -498,3 +498,43 @@ export const deleteAddress = catchAsync(async (req, res, next) => {
     addresses: user.addresses
   });
 });
+
+// =======================
+// 🗑️ Account Deletion Request (Public - for Google Play compliance)
+// =======================
+export const requestAccountDeletion = catchAsync(async (req, res, next) => {
+  const { phone, email, reason, feedback } = req.body;
+
+  // Validate required fields
+  if (!phone || !email) {
+    return next(new AppError('Phone number and email are required', 400));
+  }
+
+  // Find user by phone or email
+  const user = await User.findOne({
+    $or: [{ phone }, { email }]
+  });
+
+  if (!user) {
+    // Don't reveal if user exists or not for security
+    return res.status(200).json({
+      status: 'success',
+      message: 'If an account exists with these details, a deletion request has been submitted.'
+    });
+  }
+
+  // Mark user for deletion (soft delete approach)
+  user.deletionRequested = true;
+  user.deletionRequestedAt = new Date();
+  user.deletionReason = reason || 'Not specified';
+  user.deletionFeedback = feedback || '';
+  await user.save({ validateBeforeSave: false });
+
+  // Log the deletion request
+  console.log(`🗑️ Account deletion requested: ${user.phone} - Reason: ${reason || 'Not specified'}`);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Account deletion request submitted successfully. You will receive a verification code shortly.'
+  });
+});

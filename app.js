@@ -177,6 +177,17 @@ app.get('/privacy', (req, res) => {
 });
 
 // -----------------------
+// ACCOUNT DELETION (Public - Google Play compliance)
+// -----------------------
+app.get('/account-deletion', (req, res) => {
+  res.sendFile(path.join(__dirname, 'account-deletion.html'));
+});
+
+app.get('/delete-account', (req, res) => {
+  res.redirect('/account-deletion');
+});
+
+// -----------------------
 // ERROR HANDLER
 // -----------------------
 app.use(globalErrorHandler);

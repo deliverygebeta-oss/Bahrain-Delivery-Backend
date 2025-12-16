@@ -23,8 +23,8 @@ import {
   getMyAddresses,
   editAddress,
   deleteAddress,
-
-  saveCurrentAddress
+  saveCurrentAddress,
+  requestAccountDeletion
 } from '../controllers/userController.js';
 
 import upload from '../utils/upload.js';
@@ -55,6 +55,9 @@ router.post('/requestResetOTP', requestPasswordResetOTP);
 
 // Reset password using OTP
 router.post('/resetPasswordOTP', resetPasswordWithOTP);
+
+// Account Deletion Request (Public - for Google Play compliance)
+router.post('/request-deletion', requestAccountDeletion);
 
 // =======================
 // 🔐 Protected Routes (Require Authentication)
