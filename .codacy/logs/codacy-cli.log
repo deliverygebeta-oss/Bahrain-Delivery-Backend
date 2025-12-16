@@ -1,0 +1,2 @@
+2025-12-16T02:52:46-05:00 [INFO] (codacy-cli-v2/cli-v2.go:27) Starting Codacy CLI version=1.0.0-main.364.sha.2651163 (2651163) built at 2025-12-09T15:39:30Z
+2025-12-16T02:52:46-05:00 [INFO] (codacy-cli-v2/cmd/root.go:34) Executing CLI command args=[] command=init full_command=[/home/venus/.cache/codacy/codacy-cli-v2/1.0.0-main.364.sha.2651163/codacy-cli-v2 init --provider gh --organization deliverygebeta-oss --repository Bahrain-Delivery-Backend --api-token ***]

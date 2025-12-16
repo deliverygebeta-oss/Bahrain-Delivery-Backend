@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Privacy Policy for Bahiran Delivery Driver App - Learn how we collect, use, and protect your personal information.">
+    <meta name="keywords" content="Bahiran Delivery, Privacy Policy, Driver App, Data Protection, Ethiopia">
+    <meta name="author" content="Bahiran Delivery">
+    <meta property="og:title" content="Privacy Policy - Bahiran Delivery Driver App">
+    <meta property="og:description" content="Comprehensive privacy policy for Bahiran Delivery Driver Application">
+    <meta property="og:type" content="website">
+    <title>Privacy Policy - Bahiran Delivery Driver App</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0D9488;
+            --primary-dark: #0F766E;
+            --primary-light: #14B8A6;
+            --accent: #F59E0B;
+            --accent-light: #FBBF24;
+            --bg-dark: #0F172A;
+            --bg-card: #1E293B;
+            --bg-elevated: #334155;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border: #334155;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #3B82F6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            color: var(--text-primary);
+            background: var(--bg-dark);
+            min-height: 100vh;
+        }
+
+        /* Geometric Background Pattern */
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(13, 148, 136, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                linear-gradient(rgba(51, 65, 85, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(51, 65, 85, 0.3) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+        }
+
+        /* Navigation */
+        .nav {
+            position: sticky;
+            top: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-light);
+        }
+
+        /* Container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(13, 148, 136, 0.2) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .version-info {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .version-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .version-item strong {
+            color: var(--text-secondary);
+        }
+
+        /* Table of Contents */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .toc h2 {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .toc-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toc-link:hover {
+            background: var(--bg-elevated);
+            color: var(--primary-light);
+        }
+
+        .toc-number {
+            color: var(--primary);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .section h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 2rem 0 1rem;
+        }
+
+        .section h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-light);
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        .section p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        /* Lists */
+        ul, ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        li strong {
+            color: var(--text-primary);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .card-highlight {
+            border-left: 4px solid var(--primary);
+        }
+
+        .card-warning {
+            border-left: 4px solid var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .card-danger {
+            border-left: 4px solid var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .card-info {
+            border-left: 4px solid var(--info);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .card-success {
+            border-left: 4px solid var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        /* Tables */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 1rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: rgba(13, 148, 136, 0.05);
+        }
+
+        /* Code */
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-elevated);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--primary-light);
+        }
+
+        /* Permission Grid */
+        .permission-grid {
+            display: grid;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .permission-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .permission-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .permission-content h5 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .permission-content p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .permission-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--primary);
+            margin-top: 0.5rem;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--bg-dark) 100%);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-top: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
+        }
+
+        .contact-section h2 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            position: relative;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .contact-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .contact-item a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-item a:hover {
+            color: var(--accent-light);
+        }
+
+        .contact-item span {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            display: block;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 4rem;
+        }
+
+        .footer-version {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--bg-card);
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .footer-version span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-legal {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 1rem auto 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .section h2 {
+                font-size: 1.5rem;
+            }
+
+            .contact-section {
+                padding: 2rem;
+            }
+
+            .version-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .nav, .background-pattern, .grid-overlay {
+                display: none;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+    <div class="grid-overlay"></div>
+
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="#" class="nav-brand">
+                <div class="nav-brand-icon">🚗</div>
+                Bahiran Delivery
+            </a>
+            <div class="nav-links">
+                <a href="#scope" class="nav-link">Scope</a>
+                <a href="#data-collection" class="nav-link">Data Collection</a>
+                <a href="#rights" class="nav-link">Your Rights</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="hero">
+            <div class="badge">
+                <span class="badge-dot"></span>
+                Privacy Policy v2.0
+            </div>
+            <h1>Privacy Policy</h1>
+            <p class="hero-subtitle">
+                Your privacy is fundamental to our service. This policy explains how we collect, use, and protect your personal information.
+            </p>
+            <div class="version-info">
+                <div class="version-item">
+                    <span>📅</span>
+                    <span><strong>Effective:</strong> December 16, 2025</span>
+                </div>
+                <div class="version-item">
+                    <span>🔄</span>
+                    <span><strong>Updated:</strong> December 16, 2025</span>
+                </div>
+                <div class="version-item">
+                    <span>📋</span>
+                    <span><strong>Version:</strong> 2.0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Executive Summary -->
+        <div class="card card-highlight">
+            <div class="card-title">📝 Executive Summary</div>
+            <p style="margin-bottom: 0;">
+                Bahiran Delivery is committed to protecting your privacy. We collect only the information necessary to provide our delivery service, including your identity, location, and financial data. We share your information only with customers during active deliveries and with trusted service providers. You have full control over your data and can access, correct, or delete it at any time.
+            </p>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h2>📑 Table of Contents</h2>
+            <div class="toc-grid">
+                <a href="#scope" class="toc-link"><span class="toc-number">01</span> Scope & Application</a>
+                <a href="#data-collection" class="toc-link"><span class="toc-number">02</span> Information We Collect</a>
+                <a href="#legal-basis" class="toc-link"><span class="toc-number">03</span> Legal Basis</a>
+                <a href="#data-use" class="toc-link"><span class="toc-number">04</span> How We Use Data</a>
+                <a href="#sharing" class="toc-link"><span class="toc-number">05</span> Information Sharing</a>
+                <a href="#retention" class="toc-link"><span class="toc-number">06</span> Data Retention</a>
+                <a href="#security" class="toc-link"><span class="toc-number">07</span> Data Security</a>
+                <a href="#rights" class="toc-link"><span class="toc-number">08</span> Your Rights</a>
+                <a href="#location" class="toc-link"><span class="toc-number">09</span> Location Services</a>
+                <a href="#permissions" class="toc-link"><span class="toc-number">10</span> Device Permissions</a>
+                <a href="#third-party" class="toc-link"><span class="toc-number">11</span> Third-Party Services</a>
+                <a href="#contact" class="toc-link"><span class="toc-number">12</span> Contact Information</a>
+            </div>
+        </div>
+
+        <!-- Section 1: Scope -->
+        <section id="scope" class="section">
+            <div class="section-header">
+                <div class="section-icon">🎯</div>
+                <h2>1. Scope & Application</h2>
+            </div>
+            
+            <h3>1.1 Coverage</h3>
+            <p>This Privacy Policy applies to:</p>
+            <ul>
+                <li>The Bahiran Delivery Driver mobile application (iOS and Android)</li>
+                <li>All services provided through the App</li>
+                <li>All personal data processed in connection with the Service</li>
+                <li>Communications between you and Bahiran Delivery</li>
+            </ul>
+
+            <h3>1.2 Key Definitions</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Term</th>
+                            <th>Definition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Personal Data</strong></td>
+                            <td>Any information relating to an identified or identifiable natural person</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Processing</strong></td>
+                            <td>Any operation performed on personal data, whether automated or manual</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Controller</strong></td>
+                            <td>Bahiran Delivery, which determines the purposes and means of processing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Service Provider</strong></td>
+                            <td>A third party that processes data on our behalf</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 2: Data Collection -->
+        <section id="data-collection" class="section">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <h2>2. Information We Collect</h2>
+            </div>
+
+            <h3>2.1 Information You Provide</h3>
+            
+            <h4>Account Registration Data</h4>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data Element</th>
+                            <th>Purpose</th>
+                            <th>Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Full legal name</td>
+                            <td>Identity verification, legal compliance</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Mobile phone number</td>
+                            <td>Account verification, communication</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Email address</td>
+                            <td>Account recovery, notifications</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Password</td>
+                            <td>Account security</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Profile photograph</td>
+                            <td>Identity display to customers</td>
+                            <td>Optional</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Financial Information</h4>
+            <ul>
+                <li>Bank account details (account number, bank name, account holder name)</li>
+                <li>Mobile money accounts (CBEBirr, Telebirr, M-PESA)</li>
+                <li>Payment preferences and withdrawal history</li>
+            </ul>
+
+            <h3>2.2 Information Collected Automatically</h3>
+            
+            <div class="card card-info">
+                <div class="card-title">📍 Location Data</div>
+                <p><strong>Active Mode (Foreground):</strong> Precise GPS coordinates while navigating to deliveries. Updates every 3-5 seconds.</p>
+                <p style="margin-bottom: 0;"><strong>Background Mode:</strong> Continuous location tracking when you are "online" and available for deliveries. Used for real-time tracking, proximity alerts, and order matching.</p>
+            </div>
+
+            <h4>Device & Technical Data</h4>
+            <ul>
+                <li>Device manufacturer, model, and operating system version</li>
+                <li>Unique device identifiers (IMEI, advertising ID)</li>
+                <li>IP address and network information</li>
+                <li>App version and crash reports</li>
+            </ul>
+
+            <h4>Usage & Activity Data</h4>
+            <ul>
+                <li>Order acceptance and completion rates</li>
+                <li>Delivery times and routes taken</li>
+                <li>App interaction patterns</li>
+                <li>Online/offline status and duration</li>
+            </ul>
+        </section>
+
+        <!-- Section 3: Legal Basis -->
+        <section id="legal-basis" class="section">
+            <div class="section-header">
+                <div class="section-icon">⚖️</div>
+                <h2>3. Legal Basis for Processing</h2>
+            </div>
+
+            <p>We process your personal data based on the following legal grounds:</p>
+
+            <div class="card">
+                <div class="card-title">📜 Contractual Necessity</div>
+                <p style="margin-bottom: 0;">Processing necessary to perform our contract with you: account creation, order processing, payment calculation, and service communication.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🏢 Legitimate Interests</div>
+                <p style="margin-bottom: 0;">Processing for legitimate business purposes: fraud prevention, service improvement, analytics, and dispute resolution.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📋 Legal Compliance</div>
+                <p style="margin-bottom: 0;">Processing to comply with legal obligations: tax reporting, regulatory compliance, law enforcement requests.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">✅ Consent</div>
+                <p style="margin-bottom: 0;">Where required by law, we obtain explicit consent for: marketing communications, background location tracking, and sharing with specific third parties.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Data Use -->
+        <section id="data-use" class="section">
+            <div class="section-header">
+                <div class="section-icon">⚙️</div>
+                <h2>4. How We Use Your Information</h2>
+            </div>
+
+            <h3>4.1 Core Service Operations</h3>
+            <ul>
+                <li><strong>Order Management:</strong> Match you with delivery requests, provide navigation, track progress, verify completion</li>
+                <li><strong>Payment Processing:</strong> Calculate earnings, process withdrawals, generate statements</li>
+                <li><strong>Communication:</strong> Send order notifications, proximity alerts, account updates</li>
+            </ul>
+
+            <h3>4.2 Safety & Security</h3>
+            <ul>
+                <li>Verify your identity and prevent impersonation</li>
+                <li>Detect and prevent fraudulent activities</li>
+                <li>Monitor for suspicious account behavior</li>
+                <li>Investigate security incidents</li>
+            </ul>
+
+            <h3>4.3 Service Enhancement</h3>
+            <ul>
+                <li>Analyze usage patterns to improve features</li>
+                <li>Optimize delivery algorithms and routing</li>
+                <li>Develop new products and services</li>
+                <li>Personalize your app experience</li>
+            </ul>
+        </section>
+
+        <!-- Section 5: Information Sharing -->
+        <section id="sharing" class="section">
+            <div class="section-header">
+                <div class="section-icon">🔗</div>
+                <h2>5. Information Sharing & Disclosure</h2>
+            </div>
+
+            <h3>5.1 Sharing with Customers</h3>
+            <p>During active deliveries, we share:</p>
+            <ul>
+                <li>Your first name and last initial</li>
+                <li>Your phone number (may be masked)</li>
+                <li>Real-time location while en route</li>
+                <li>Profile photograph and driver rating</li>
+            </ul>
+
+            <h3>5.2 Service Providers</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Provider Type</th>
+                            <th>Purpose</th>
+                            <th>Data Shared</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Cloud Infrastructure</td>
+                            <td>Data storage, computing</td>
+                            <td>All data categories</td>
+                        </tr>
+                        <tr>
+                            <td>Payment Processors</td>
+                            <td>Financial transactions</td>
+                            <td>Financial data, identity</td>
+                        </tr>
+                        <tr>
+                            <td>Map Services</td>
+                            <td>Navigation, geocoding</td>
+                            <td>Location data</td>
+                        </tr>
+                        <tr>
+                            <td>Analytics Providers</td>
+                            <td>Performance monitoring</td>
+                            <td>Usage data (anonymized)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>5.3 Legal Disclosures</h3>
+            <div class="card card-warning">
+                <div class="card-title">⚠️ Legal Requirements</div>
+                <p style="margin-bottom: 0;">We may disclose your information when required by law: response to subpoenas, court orders, government investigations, protection of legal rights, prevention of illegal activities.</p>
+            </div>
+        </section>
+
+        <!-- Section 6: Data Retention -->
+        <section id="retention" class="section">
+            <div class="section-header">
+                <div class="section-icon">🗄️</div>
+                <h2>6. Data Retention</h2>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data Category</th>
+                            <th>Retention Period</th>
+                            <th>Basis</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Account Information</td>
+                            <td>Active account + 30 days</td>
+                            <td>Operational necessity</td>
+                        </tr>
+                        <tr>
+                            <td>Location Data</td>
+                            <td>1 days</td>
+                            <td>Service delivery, disputes</td>
+                        </tr>
+                        <tr>
+                            <td>Financial Records</td>
+                            <td>7 years</td>
+                            <td>Tax & regulatory compliance</td>
+                        </tr>
+                        <tr>
+                            <td>Order History</td>
+                            <td>3 years</td>
+                            <td>Service records, disputes</td>
+                        </tr>
+                        <tr>
+                            <td>Communication Records</td>
+                            <td>2 years</td>
+                            <td>Support, legal compliance</td>
+                        </tr>
+                        <tr>
+                            <td>Camera Data</td>
+                            <td>Not stored</td>
+                            <td>Processed in real-time only</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card card-success">
+                <div class="card-title">🗑️ Account Deletion</div>
+                <p style="margin-bottom: 0;">Upon account deletion: active personal data is deleted within 30 days, anonymized data may be retained for analytics, legally required records are retained per applicable laws, backup copies are purged within 90 days.</p>
+            </div>
+        </section>
+
+        <!-- Section 7: Data Security -->
+        <section id="security" class="section">
+            <div class="section-header">
+                <div class="section-icon">🔒</div>
+                <h2>7. Data Security</h2>
+            </div>
+
+            <h3>7.1 Technical Safeguards</h3>
+            <ul>
+                <li><strong>Encryption:</strong> All data in transit protected by TLS 1.3, sensitive data at rest encrypted using AES-256</li>
+                <li><strong>Access Controls:</strong> Role-based access control (RBAC), multi-factor authentication for admin access</li>
+                <li><strong>Infrastructure:</strong> Secure cloud infrastructure, network segmentation, intrusion detection systems</li>
+            </ul>
+
+            <h3>7.2 Organizational Safeguards</h3>
+            <ul>
+                <li>Employee security training and awareness programs</li>
+                <li>Background checks for personnel with data access</li>
+                <li>Confidentiality agreements and security policies</li>
+                <li>Incident response procedures and disaster recovery plans</li>
+            </ul>
+
+            <div class="card card-danger">
+                <div class="card-title">🚨 Incident Response</div>
+                <p style="margin-bottom: 0;">In the event of a data breach: we will investigate and contain the incident promptly, affected individuals will be notified within 72 hours (where required), regulatory authorities will be notified as required by law.</p>
+            </div>
+
+            <h3>7.3 Your Responsibilities</h3>
+            <p>You are responsible for:</p>
+            <ul>
+                <li>Keeping your login credentials confidential</li>
+                <li>Using strong, unique passwords</li>
+                <li>Logging out from shared devices</li>
+                <li>Reporting suspicious account activity immediately</li>
+            </ul>
+        </section>
+
+        <!-- Section 8: Your Rights -->
+        <section id="rights" class="section">
+            <div class="section-header">
+                <div class="section-icon">✊</div>
+                <h2>8. Your Rights & Choices</h2>
+            </div>
+
+            <div class="permission-grid">
+                <div class="permission-item">
+                    <div class="permission-icon">👁️</div>
+                    <div class="permission-content">
+                        <h5>Access & Portability</h5>
+                        <p>Access your personal data, receive a copy in portable format, request information about processing</p>
+                    </div>
+                </div>
+                <div class="permission-item">
+                    <div class="permission-icon">✏️</div>
+                    <div class="permission-content">
+                        <h5>Correction & Update</h5>
+                        <p>Update your profile information, request correction of inaccurate data, complete incomplete records</p>
+                    </div>
+                </div>
+                <div class="permission-item">
+                    <div class="permission-icon">🗑️</div>
+                    <div class="permission-content">
+                        <h5>Deletion & Restriction</h5>
+                        <p>Request deletion of your data, restrict processing in certain circumstances, object to processing</p>
+                    </div>
+                </div>
+                <div class="permission-item">
+                    <div class="permission-icon">🚫</div>
+                    <div class="permission-content">
+                        <h5>Opt-Out Rights</h5>
+                        <p>Opt out of marketing communications, promotional notifications, non-essential data collection</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Exercising Your Rights</h3>
+            <p>To exercise your rights:</p>
+            <ul>
+                <li><strong>In-App:</strong> Navigate to Profile → Privacy Settings</li>
+                <li><strong>Email:</strong> privacy@bahirandelivery.com</li>
+                <li><strong>Response Time:</strong> We respond to verified requests within 30 days</li>
+            </ul>
+        </section>
+
+        <!-- Section 9: Location Services -->
+        <section id="location" class="section">
+            <div class="section-header">
+                <div class="section-icon">📍</div>
+                <h2>9. Location Services</h2>
+            </div>
+
+            <div class="card card-info">
+                <div class="card-title">ℹ️ Why We Need Location</div>
+                <p style="margin-bottom: 0;">Location data is central to our delivery service. It enables real-time navigation, customer tracking, order matching based on proximity, distance-based fare calculation, and delivery time analytics.</p>
+            </div>
+
+            <h3>9.1 How We Use Location</h3>
+            <ul>
+                <li><strong>Real-Time Navigation:</strong> Turn-by-turn directions to pickup and delivery points</li>
+                <li><strong>Customer Transparency:</strong> Live tracking shared with customers awaiting delivery</li>
+                <li><strong>Platform Operations:</strong> Order matching, fare calculation, demand prediction</li>
+            </ul>
+
+            <h3>9.2 Background Location</h3>
+            <p>When you are "online" in the App:</p>
+            <ul>
+                <li>Background location tracking is active</li>
+                <li>Updates occur even when the App is minimized</li>
+                <li>This enables order matching and proximity alerts</li>
+            </ul>
+
+            <div class="card card-warning">
+                <div class="card-title">⚠️ Stopping Background Tracking</div>
+                <p style="margin-bottom: 0;">You can stop background tracking by: going "offline" in the App, logging out of your account, or revoking location permission (will disable core functionality).</p>
+            </div>
+        </section>
+
+        <!-- Section 10: Permissions -->
+        <section id="permissions" class="section">
+            <div class="section-header">
+                <div class="section-icon">📱</div>
+                <h2>10. Device Permissions</h2>
+            </div>
+
+            <h3>10.1 Android Permissions</h3>
+            <div class="permission-grid">
+                <div class="permission-item">
+                    <div class="permission-icon">📍</div>
+                    <div class="permission-content">
+                        <h5>Fine Location</h5>
+                        <p>Precise navigation and tracking for deliveries</p>
+                        <div class="permission-code">ACCESS_FINE_LOCATION</div>
+                    </div>
+                </div>
+                <div class="permission-item">
+                    <div class="permission-icon">🌐</div>
+                    <div class="permission-content">
+                        <h5>Background Location</h5>
+                        <p>Tracking while online with App minimized</p>
+                        <div class="permission-code">ACCESS_BACKGROUND_LOCATION</div>
+                    </div>
+                </div>
+                <div class="permission-item">
+                    <div class="permission-icon">📷</div>
+                    <div class="permission-content">
+                        <h5>Camera</h5>
+                        <p>QR code scanning for order verification</p>
+                        <div class="permission-code">CAMERA</div>
+                    </div>
+                </div>
+                <div class="permission-item">
+                    <div class="permission-icon">🔔</div>
+                    <div class="permission-content">
+                        <h5>Notifications</h5>
+                        <p>Order alerts and delivery updates</p>
+                        <div class="permission-code">POST_NOTIFICATIONS</div>
+                    </div>
+                </div>
+                <div class="permission-item">
+                    <div class="permission-icon">⚡</div>
+                    <div class="permission-content">
+                        <h5>Foreground Service</h5>
+                        <p>Continuous location service when online</p>
+                        <div class="permission-code">FOREGROUND_SERVICE</div>
+                    </div>
+                </div>
+                <div class="permission-item">
+                    <div class="permission-icon">📳</div>
+                    <div class="permission-content">
+                        <h5>Vibration</h5>
+                        <p>Alert notifications for new orders</p>
+                        <div class="permission-code">VIBRATE</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>10.2 iOS Permissions</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Permission</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Location Always</td>
+                            <td>Background location tracking when online</td>
+                        </tr>
+                        <tr>
+                            <td>Location When In Use</td>
+                            <td>Navigation during active use</td>
+                        </tr>
+                        <tr>
+                            <td>Camera</td>
+                            <td>QR code scanning</td>
+                        </tr>
+                        <tr>
+                            <td>Notifications</td>
+                            <td>Order and delivery alerts</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card card-danger">
+                <div class="card-title">⚠️ Impact of Denying Permissions</div>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>Location:</strong> Cannot accept or complete deliveries</li>
+                    <li><strong>Camera:</strong> Cannot scan QR codes (manual verification required)</li>
+                    <li><strong>Notifications:</strong> Will miss order alerts and updates</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 11: Third-Party Services -->
+        <section id="third-party" class="section">
+            <div class="section-header">
+                <div class="section-icon">🔌</div>
+                <h2>11. Third-Party Services</h2>
+            </div>
+
+            <h3>11.1 Integrated Services</h3>
+            <ul>
+                <li><strong>Mapping & Navigation:</strong> Google Maps Platform</li>
+                <li><strong>Payment Processing:</strong> CBEBirr, Telebirr, bank transfer networks</li>
+                <li><strong>App Infrastructure:</strong> Expo, Firebase, AWS/Google Cloud</li>
+            </ul>
+
+            <h3>11.2 Third-Party Links</h3>
+            <p>Our App may contain links to third-party websites or services. We are not responsible for the privacy practices of these external sites. We encourage you to review their privacy policies.</p>
+        </section>
+
+        <!-- Section 12: Additional Information -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">ℹ️</div>
+                <h2>12. Additional Information</h2>
+            </div>
+
+            <h3>12.1 International Data Transfers</h3>
+            <p>Your personal data is primarily stored in Ethiopia. When data is transferred internationally, we ensure appropriate safeguards including standard contractual clauses and data processing agreements.</p>
+
+            <h3>12.2 Children's Privacy</h3>
+            <p>Our Service is strictly intended for adults aged 18 years and older. We do not knowingly collect personal information from anyone under 18.</p>
+
+            <h3>12.3 Updates to This Policy</h3>
+            <p>We may modify this Privacy Policy at any time. We will notify you of material changes through in-app notifications, email, and banner notices.</p>
+
+            <h3>12.4 Regulatory Compliance</h3>
+            <p>We comply with applicable Ethiopian laws and regulations, including Ethiopian Communications Authority regulations. For EU users, we provide GDPR rights including access, rectification, erasure, restriction, and portability.</p>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section">
+            <h2>📞 Contact Us</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us:
+            </p>
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <div class="contact-icon">📧</div>
+                    <div>
+                        <a href="mailto:privacy@bahirandelivery.com">privacy@bahirandelivery.com</a>
+                        <span>Privacy Questions</span>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">💬</div>
+                    <div>
+                        <a href="mailto:support@bahirandelivery.com">support@bahirandelivery.com</a>
+                        <span>General Support</span>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">🛡️</div>
+                    <div>
+                        <a href="mailto:dpo@bahirandelivery.com">dpo@bahirandelivery.com</a>
+                        <span>Data Protection Officer</span>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">📱</div>
+                    <div>
+                        <a href="tel:+251919444499">+251 (0) 919 444 499</a>
+                        <span>Phone Support</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-version">
+                <span>📋 Version 2.0</span>
+                <span>|</span>
+                <span>📄 BDDA-PP-2025-002</span>
+            </div>
+            <p><strong>Bahiran Delivery</strong> • Addis Ababa, Ethiopia</p>
+            <p>© 2025 Bahiran Delivery. All rights reserved.</p>
+            <p class="footer-legal">
+                By using the Bahiran Delivery Driver App, you acknowledge that you have read, understood, and agree to be bound by this Privacy Policy. This document is legally binding.
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

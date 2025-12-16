@@ -4,6 +4,11 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import cors from 'cors';
 import morgan from 'morgan';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // SECURITY PACKAGES
 import helmet from 'helmet';
@@ -158,6 +163,17 @@ app.get('/health', (req, res) => {
       total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + 'MB'
     }
   });
+});
+
+// -----------------------
+// PRIVACY POLICY & TERMS (Public)
+// -----------------------
+app.get('/privacy-policy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'privacy-policy.html'));
+});
+
+app.get('/privacy', (req, res) => {
+  res.redirect('/privacy-policy');
 });
 
 // -----------------------
