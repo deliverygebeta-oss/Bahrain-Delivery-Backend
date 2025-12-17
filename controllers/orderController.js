@@ -121,6 +121,7 @@ export const placeOrder = async (req, res, next) => {
       sponsoredPhone:sponsoredPhone,
       orderItems: computeorder.orderItems,
       foodTotal: computeorder.foodTotal,
+      vatTotal: computeorder.vatTotal,
       deliveryFee: computeorder.deliveryFee,
       tip: computeorder.tip,
       totalPrice: computeorder.totalPrice,
@@ -957,6 +958,7 @@ export const estimateDeliveryFee = async (req, res) => {
         [DELIVERY_VEHICLES.Car]: carResult,
         [DELIVERY_VEHICLES.Motorcycle]: motorResult,
         [DELIVERY_VEHICLES.Bicycle]: bicycleResult,
+        vatpercent:15
       },
     });
   } catch (err) {
@@ -973,7 +975,8 @@ export const getServiceFee = async (req, res) => {
       status: "success",
       data: {
         dineInSeviceFee,
-        takeawayServiceFee
+        takeawayServiceFee,
+        vatpercent:15
       },
     });
   } catch (err) {

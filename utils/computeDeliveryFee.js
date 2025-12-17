@@ -5,7 +5,8 @@ import { DELIVERY_VEHICLES } from '../models/Order.js';
 export const computeDeliveryFee = async ({ 
   restaurantLocation, 
   destinationLocation, 
-  deliveryVehicle 
+  deliveryVehicle,
+  
 }) => {
   // --- Validation ---
   if (!restaurantLocation?.lat || !restaurantLocation?.lng) {

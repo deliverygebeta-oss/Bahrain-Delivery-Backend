@@ -143,6 +143,7 @@ const orderSchema = new mongoose.Schema(
     tip: { type: mongoose.Schema.Types.Decimal128, default: 0, min: 0 },
     totalPrice: { type: mongoose.Schema.Types.Decimal128, required: true, min: 0 },
     serviceFee: { type: mongoose.Schema.Types.Decimal128, required: true, min: 0 },
+    vatTotal: { type: mongoose.Schema.Types.Decimal128, required: true, min: 0 },
     // ORDER TYPE & DELIVERY
     typeOfOrder: {
       type: String,
@@ -310,8 +311,12 @@ for (const item of orderItems) {
 let deliveryFee = 0;
 let serviceFee = 0;
 
+
+vatPercentage = process.env.GOV_VAT ? parseFloat(process.env.GOV_VAT) : 0;
+
+vatTotal =  parseFloat((foodTotal * vatPercentage).toFixed(2)) ;
 // Base price always includes food + tip
-let totalPrice = foodTotal + parsedTip;
+let totalPrice = foodTotal + parsedTip + vatTotal;
 
 switch (typeOfOrder) {
 
@@ -345,6 +350,7 @@ console.log("Total Price:", totalPrice);
     
     orderItems: normalizedItems,
     foodTotal: mongoose.Types.Decimal128.fromString(foodTotal.toFixed(2)),
+    vatTotal: mongoose.Types.Decimal128.fromString(vatTotal.toFixed(2)),
     deliveryFee: mongoose.Types.Decimal128.fromString(deliveryFee.toFixed(2)),
     serviceFee:mongoose.Types.Decimal128.fromString(serviceFee.toFixed(2)),
     tip: mongoose.Types.Decimal128.fromString(parsedTip.toFixed(2)),
