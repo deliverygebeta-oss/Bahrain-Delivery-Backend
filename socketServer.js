@@ -376,7 +376,7 @@ export const initializeSocket = (httpServer) => {
             order.deliveryVerificationCode = pickUpCode;
             order.deliveryId = deliveryPersonId;
 
-            await order.save({ session });
+            await order.save({ session, validateBeforeSave: false});
             await session.commitTransaction();
 
             console.log(`Order ${order._id} accepted by delivery person ${deliveryPersonId}`);
