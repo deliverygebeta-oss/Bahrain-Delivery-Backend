@@ -354,7 +354,6 @@ console.log("Total Price:", totalPrice);
     deliveryFee: mongoose.Types.Decimal128.fromString(deliveryFee.toFixed(2)),
     serviceFee:mongoose.Types.Decimal128.fromString(serviceFee.toFixed(2)),
     tip: mongoose.Types.Decimal128.fromString(parsedTip.toFixed(2)),
-
     totalPrice: mongoose.Types.Decimal128.fromString(totalPrice.toFixed(2)),
     restaurantId,
     restaurantName: restaurant.name,
