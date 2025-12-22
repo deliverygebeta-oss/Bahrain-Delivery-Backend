@@ -312,9 +312,9 @@ let deliveryFee = 0;
 let serviceFee = 0;
 
 
-vatPercentage = process.env.GOV_VAT ? parseFloat(process.env.GOV_VAT) : 0;
+const vatPercentage = process.env.GOV_VAT ? parseFloat(process.env.GOV_VAT) : 0;
 
-vatTotal =  parseFloat((foodTotal * vatPercentage).toFixed(2)) ;
+const vatTotal =  parseFloat((foodTotal * vatPercentage).toFixed(2)) ;
 // Base price always includes food + tip
 let totalPrice = foodTotal + parsedTip + vatTotal;
 
