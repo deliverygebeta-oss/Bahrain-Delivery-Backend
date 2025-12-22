@@ -112,7 +112,7 @@ export const placeOrder = async (req, res, next) => {
       description,
       calculatedDeliveryFee: Number(callculatedDeliveryFee.toFixed(2)), // fixed typo & precision
     });
-console.log("Computed Order:", computeorder);
+
     // Create order in DB
     const order = await Order.create({
       userId:user._id,
