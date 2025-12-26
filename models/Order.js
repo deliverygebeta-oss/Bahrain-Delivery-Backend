@@ -334,7 +334,6 @@ switch (typeOfOrder) {
     serviceFee =  parseFloat(process.env.TAKEAWAY_SERVICE_FEE);
     totalPrice += serviceFee;
     break;
-
   default:
     // No extra fee
     break;

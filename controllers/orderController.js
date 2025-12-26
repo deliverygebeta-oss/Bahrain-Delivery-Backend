@@ -66,6 +66,7 @@ export const initializeChapaPayment = async ({ amount, currency, orderId, user }
     throw new Error("Failed to initialize Chapa payment");
   }
 };
+
 // Generate a 6-digit verification code
 export const generateVerificationCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -540,12 +541,15 @@ export const pickUpOrder = async (req, res, next) => {
 
     // Step 5: Register Restaurant Deposit
     // Using new schema fields: originalAmount, netAmount auto-calculated
+
+   
     await Balance.create(
       [
         {
           requesterType: REQUESTER_TYPES.Restaurant,
           restaurantId: order.restaurantId,
-          originalAmount: order.foodTotal,     // original amount
+          originalAmount: order.foodTotal,
+          foodVat: order.vatTotal,    // original amount
           type: TRANSACTION_TYPES.Deposit,
           status: TRANSACTION_STATUSES.APPROVED, // approved instantly
           note: `Deposit for completed order ${order._id}`,

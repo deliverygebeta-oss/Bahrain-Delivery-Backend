@@ -46,6 +46,10 @@ const balanceSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Decimal128,
       required: true,
     },
+    vatTotal: {
+      type: mongoose.Schema.Types.Decimal128,
+      default: 0,
+    },
 
     fee: {
       type: mongoose.Schema.Types.Decimal128,
@@ -110,25 +114,45 @@ balanceSchema.virtual("requesterId").get(function () {
  * 🔹 PRE-SAVE: Auto-calculate fee & netAmount on Deposits ONLY
  ************************************************************/
 balanceSchema.pre("validate", function (next) {
-  // Only run for NEW deposit records
+  // For non-new documents or non-Deposit transactions, netAmount equals originalAmount
   if (!this.isNew || this.type !== TRANSACTION_TYPES.Deposit) {
     this.netAmount = this.originalAmount;
     return next();
   }
 
-  const deliveryFee = parseFloat(process.env.DELIVERY_DEPOSIT_FEE || "0.1"); // 10%
-  const restaurantFee = parseFloat(process.env.RESTAURANT_DEPOSIT_FEE || "0.08"); // 8%
+  // Fees as decimals (e.g., "0.1" for 10%, "0.08" for 8%)
+  const deliveryFee = parseFloat(process.env.DELIVERY_DEPOSIT_FEE || "0.1");
+  const restaurantFee = parseFloat(process.env.RESTAURANT_DEPOSIT_FEE || "0.08");
+  const govVatRate = parseFloat(process.env.GOV_VAT || "0"); // e.g., "0.05" for 5%
 
-  const original = parseFloat(this.originalAmount.toString());
+  const original = Number(this.originalAmount); // safer than parseFloat on object
 
-  let feePercentage =
-    this.requesterType === REQUESTER_TYPES.Delivery ? deliveryFee : restaurantFee;
+  if (isNaN(original)) {
+    return next(new Error("originalAmount is not a valid number"));
+  }
 
-  const fee = parseFloat((original * feePercentage).toFixed(2));
-  const net = parseFloat((original - fee).toFixed(2));
+  // Determine fee rate based on requesterType
+  const feeRate = this.requesterType === REQUESTER_TYPES.Delivery 
+    ? deliveryFee 
+    : restaurantFee;
 
+  // VAT only applies to restaurant (not delivery)
+  const vatRate = this.requesterType === REQUESTER_TYPES.Delivery 
+    ? 0 
+    : govVatRate;
+
+  // Calculate fee (rounded to 2 decimals)
+  const fee = Number((original * feeRate).toFixed(2));
+
+  // Amount after platform fee
+  const afterFee = Number((original - fee).toFixed(2));
+
+  // Add VAT if applicable, then final net amount
+  const netAmount = Number((afterFee * (1 + vatRate)).toFixed(2));
+
+  // Assign calculated values
   this.fee = fee;
-  this.netAmount = net;
+  this.netAmount = netAmount;
 
   next();
 });
