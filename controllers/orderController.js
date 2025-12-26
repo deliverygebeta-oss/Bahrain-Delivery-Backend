@@ -962,7 +962,7 @@ export const estimateDeliveryFee = async (req, res) => {
         [DELIVERY_VEHICLES.Car]: carResult,
         [DELIVERY_VEHICLES.Motorcycle]: motorResult,
         [DELIVERY_VEHICLES.Bicycle]: bicycleResult,
-        vatpercent:15
+        vatpercent: process.env.GOV_VAT
       },
     });
   } catch (err) {
