@@ -980,8 +980,8 @@ export const getServiceFee = async (req, res) => {
       data: {
         dineInSeviceFee,
         takeawayServiceFee,
-        vatpercent:15
-      },
+        vatpercent: process.env.GOV_VAT
+      },  
     });
   } catch (err) {
     return res.status(400).json({
